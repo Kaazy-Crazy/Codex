@@ -206,6 +206,196 @@ header h1 {
     color: #cbd5e0;
 }
 
+/* ダークモード切り替えボタン */
+header {
+    position: relative;
+}
+
+.theme-toggle {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    font-size: 24px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.theme-toggle:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
+}
+
+/* 入力エリアの改良 */
+.todo-input {
+    flex-direction: column;
+}
+
+.input-row {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+#categorySelect {
+    padding: 15px 20px;
+    border: 2px solid #e1e5e9;
+    border-radius: 50px;
+    font-size: 16px;
+    outline: none;
+    background: white;
+    min-width: 150px;
+    transition: all 0.3s ease;
+}
+
+#categorySelect:focus {
+    border-color: #4facfe;
+    box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+}
+
+/* カテゴリフィルター */
+.category-filters {
+    padding: 0 30px 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+}
+
+.category-filter {
+    padding: 8px 16px;
+    border: 2px solid #e1e5e9;
+    background: white;
+    color: #495057;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.category-filter:hover {
+    border-color: #4facfe;
+    background: #f8f9ff;
+}
+
+.category-filter.active {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    color: white;
+    border-color: transparent;
+}
+
+/* カテゴリバッジ */
+.category-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-left: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.category-badge.general { background: #e3f2fd; color: #1976d2; }
+.category-badge.work { background: #fff3e0; color: #f57c00; }
+.category-badge.personal { background: #f3e5f5; color: #7b1fa2; }
+.category-badge.shopping { background: #e8f5e8; color: #388e3c; }
+.category-badge.health { background: #ffebee; color: #d32f2f; }
+
+/* ダークモードスタイル */
+[data-theme="dark"] {
+    --bg-gradient: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+    --container-bg: #2c3e50;
+    --text-primary: #ecf0f1;
+    --text-secondary: #bdc3c7;
+    --border-color: #34495e;
+    --input-bg: #34495e;
+    --button-bg: #3498db;
+    --stats-bg: #34495e;
+    --shadow: rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="dark"] body {
+    background: var(--bg-gradient);
+}
+
+[data-theme="dark"] .container {
+    background: var(--container-bg);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] header {
+    background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+}
+
+[data-theme="dark"] #todoInput,
+[data-theme="dark"] #categorySelect {
+    background: var(--input-bg);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] #todoInput::placeholder {
+    color: var(--text-secondary);
+}
+
+[data-theme="dark"] .todo-stats span {
+    background: var(--stats-bg);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .todo-item {
+    border-bottom-color: var(--border-color);
+}
+
+[data-theme="dark"] .category-filter {
+    background: var(--input-bg);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .category-filter:hover {
+    background: #3498db;
+    color: white;
+}
+
+[data-theme="dark"] .actions {
+    background: var(--input-bg);
+    border-top-color: var(--border-color);
+}
+
+[data-theme="dark"] .actions button {
+    background: var(--input-bg);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .actions button:hover {
+    background: #3498db;
+    color: white;
+}
+
+[data-theme="dark"] .empty-state {
+    color: var(--text-secondary);
+}
+
+[data-theme="dark"] .theme-toggle {
+    color: #f39c12;
+}
+
+/* ダークモードのカテゴリバッジ */
+[data-theme="dark"] .category-badge.general { background: #3498db; color: white; }
+[data-theme="dark"] .category-badge.work { background: #f39c12; color: white; }
+[data-theme="dark"] .category-badge.personal { background: #9b59b6; color: white; }
+[data-theme="dark"] .category-badge.shopping { background: #27ae60; color: white; }
+[data-theme="dark"] .category-badge.health { background: #e74c3c; color: white; }
+
 /* レスポンシブ対応 */
 @media (max-width: 768px) {
     .container {
@@ -214,7 +404,7 @@ header h1 {
         min-height: 100vh;
     }
     
-    .todo-input {
+    .input-row {
         flex-direction: column;
     }
     
@@ -226,5 +416,17 @@ header h1 {
     
     .actions {
         flex-direction: column;
+    }
+    
+    .category-filters {
+        justify-content: flex-start;
+    }
+    
+    .theme-toggle {
+        top: 15px;
+        right: 15px;
+        width: 40px;
+        height: 40px;
+        font-size: 20px;
     }
 }

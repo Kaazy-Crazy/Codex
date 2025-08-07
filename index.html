@@ -10,11 +10,30 @@
     <div class="container">
         <header>
             <h1>📝 TODO リスト</h1>
+            <button id="themeToggle" class="theme-toggle" title="ダークモード切り替え">🌙</button>
         </header>
         
         <div class="todo-input">
-            <input type="text" id="todoInput" placeholder="新しいTODOを入力してください..." maxlength="100">
+            <div class="input-row">
+                <input type="text" id="todoInput" placeholder="新しいTODOを入力してください..." maxlength="100">
+                <select id="categorySelect">
+                    <option value="general">一般</option>
+                    <option value="work">仕事</option>
+                    <option value="personal">プライベート</option>
+                    <option value="shopping">買い物</option>
+                    <option value="health">健康</option>
+                </select>
+            </div>
             <button id="addBtn">追加</button>
+        </div>
+        
+        <div class="category-filters">
+            <button class="category-filter active" data-category="all">すべて</button>
+            <button class="category-filter" data-category="general">一般</button>
+            <button class="category-filter" data-category="work">仕事</button>
+            <button class="category-filter" data-category="personal">プライベート</button>
+            <button class="category-filter" data-category="shopping">買い物</button>
+            <button class="category-filter" data-category="health">健康</button>
         </div>
         
         <div class="todo-stats">
