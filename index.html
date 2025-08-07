@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>シンプル TODO リスト</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📝 TODO リスト</h1>
+        </header>
+        
+        <div class="todo-input">
+            <input type="text" id="todoInput" placeholder="新しいTODOを入力してください..." maxlength="100">
+            <button id="addBtn">追加</button>
+        </div>
+        
+        <div class="todo-stats">
+            <span id="totalCount">合計: 0</span>
+            <span id="completedCount">完了: 0</span>
+            <span id="remainingCount">残り: 0</span>
+        </div>
+        
+        <ul id="todoList" class="todo-list">
+            <!-- TODOアイテムがここに表示されます -->
+        </ul>
+        
+        <div class="actions">
+            <button id="clearCompleted">完了済みを削除</button>
+            <button id="clearAll">全て削除</button>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
