@@ -406,19 +406,19 @@
             </div>
             <div class="hero__stats">
                 <div class="stat-card">
-                    <p>合計登録</p>
+                    <p>合計人数</p>
                     <h2 id="statTotal">0 名</h2>
-                    <small>事前登録＋当日受付の合計</small>
+                    <small>同行者を含む総人数</small>
                 </div>
                 <div class="stat-card">
                     <p>チェックイン済み</p>
                     <h2 id="statCheckedIn">0 名</h2>
-                    <small>最新の入場数</small>
+                    <small>チェックイン完了人数</small>
                 </div>
                 <div class="stat-card">
                     <p>未入場</p>
                     <h2 id="statWaiting">0 名</h2>
-                    <small>案内待ちのお客様</small>
+                    <small>案内待ちの人数</small>
                 </div>
             </div>
         </header>
@@ -682,13 +682,21 @@
             }
 
             renderStats() {
-                const total = this.attendees.length;
-                const checked = this.attendees.filter((a) => a.checkedIn).length;
-                const waiting = total - checked;
+                const totals = this.attendees.reduce(
+                    (acc, attendee) => {
+                        const partySize = Math.max(1, Number(attendee.guests) || 1);
+                        acc.totalGuests += partySize;
+                        if (attendee.checkedIn) acc.checkedGuests += partySize;
+                        return acc;
+                    },
+                    { totalGuests: 0, checkedGuests: 0 }
+                );
 
-                this.statTotal.textContent = `${total} 名`;
-                this.statCheckedIn.textContent = `${checked} 名`;
-                this.statWaiting.textContent = `${waiting} 名`;
+                const waitingGuests = Math.max(0, totals.totalGuests - totals.checkedGuests);
+
+                this.statTotal.textContent = `${totals.totalGuests} 名`;
+                this.statCheckedIn.textContent = `${totals.checkedGuests} 名`;
+                this.statWaiting.textContent = `${waitingGuests} 名`;
             }
 
             renderList() {
