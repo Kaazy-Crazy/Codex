@@ -227,6 +227,13 @@
             gap: 8px;
         }
 
+        .form__actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
         .form__helper {
             color: var(--muted);
             font-size: 13px;
@@ -286,6 +293,11 @@
             box-shadow: var(--shadow);
             display: grid;
             gap: 8px;
+        }
+
+        .attendee-card.editing {
+            border-color: rgba(56, 189, 248, 0.8);
+            box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.3), var(--shadow);
         }
 
         .attendee-card__header {
@@ -466,8 +478,11 @@
                         <label for="note">メモ</label>
                         <textarea id="note" name="note" rows="3" placeholder="アレルギー情報、導線メモなど"></textarea>
                     </div>
-                    <button type="submit" class="btn btn--primary">リストに追加</button>
-                    <p class="form__helper">登録後すぐにチェックイン操作が可能です。最新の並び順で表示されます。</p>
+                    <div class="form__actions">
+                        <button type="submit" id="submitButton" class="btn btn--primary">リストに追加</button>
+                        <button type="button" id="cancelEditButton" class="btn btn--ghost" hidden>編集をキャンセル</button>
+                    </div>
+                    <p class="form__helper" id="formHelper">登録後すぐにチェックイン操作が可能です。最新の並び順で表示されます。</p>
                 </form>
             </section>
 
@@ -513,6 +528,7 @@
                 <small class="timestamp"></small>
                 <div class="btn-group">
                     <button class="btn btn--ghost checkin-btn">チェックイン</button>
+                    <button class="btn btn--ghost edit-btn">編集</button>
                     <button class="btn btn--ghost danger delete-btn">削除</button>
                 </div>
             </div>
@@ -526,6 +542,7 @@
                 this.attendees = [];
                 this.statusFilter = 'all';
                 this.searchQuery = '';
+                this.editingId = null;
 
                 this.cacheElements();
                 this.bindEvents();
@@ -540,6 +557,10 @@
                 this.ticketTypeSelect = document.getElementById('ticketType');
                 this.guestsInput = document.getElementById('guests');
                 this.noteInput = document.getElementById('note');
+                this.submitButton = document.getElementById('submitButton');
+                this.cancelEditButton = document.getElementById('cancelEditButton');
+                this.formHelper = document.getElementById('formHelper');
+                this.defaultHelperMessage = this.formHelper ? this.formHelper.textContent : '';
                 this.attendeeList = document.getElementById('attendeeList');
                 this.template = document.getElementById('attendeeTemplate');
                 this.searchInput = document.getElementById('searchInput');
@@ -569,6 +590,8 @@
                     this.searchQuery = e.target.value.toLowerCase();
                     this.render();
                 });
+
+                this.cancelEditButton.addEventListener('click', () => this.resetFormState());
             }
 
             loadAttendees() {
@@ -601,31 +624,84 @@
                 }
             }
 
-            handleSubmit() {
-                const payload = {
-                    id: this.generateId(),
+            getFormPayload() {
+                return {
                     name: this.nameInput.value.trim(),
                     email: this.emailInput.value.trim(),
                     phone: this.phoneInput.value.trim(),
                     ticketType: this.ticketTypeSelect.value,
-                    guests: Number(this.guestsInput.value) || 1,
-                    note: this.noteInput.value.trim(),
-                    createdAt: new Date().toISOString(),
-                    checkedIn: false,
-                    checkedInAt: null
+                    guests: Math.max(1, Number(this.guestsInput.value) || 1),
+                    note: this.noteInput.value.trim()
                 };
+            }
+
+            handleSubmit() {
+                const payload = this.getFormPayload();
 
                 if (!payload.name) {
                     this.showInlineMessage('氏名は必須です。');
                     return;
                 }
 
-                this.attendees = [payload, ...this.attendees];
+                if (this.editingId) {
+                    this.attendees = this.attendees.map((item) => {
+                        if (item.id !== this.editingId) return item;
+                        return {
+                            ...item,
+                            ...payload
+                        };
+                    });
+                    this.saveAttendees();
+                    this.resetFormState();
+                    this.render();
+                    return;
+                }
+
+                const newEntry = {
+                    id: this.generateId(),
+                    ...payload,
+                    createdAt: new Date().toISOString(),
+                    checkedIn: false,
+                    checkedInAt: null
+                };
+
+                this.attendees = [newEntry, ...this.attendees];
                 this.saveAttendees();
+                this.resetFormState();
+                this.render();
+            }
+
+            startEdit(id) {
+                const target = this.attendees.find((item) => item.id === id);
+                if (!target) return;
+
+                this.editingId = id;
+                this.nameInput.value = target.name || '';
+                this.emailInput.value = target.email || '';
+                this.phoneInput.value = target.phone || '';
+                this.ticketTypeSelect.value = target.ticketType || 'standard';
+                this.guestsInput.value = target.guests || 1;
+                this.noteInput.value = target.note || '';
+
+                this.submitButton.textContent = '変更を保存';
+                this.cancelEditButton.hidden = false;
+                if (this.formHelper) {
+                    this.formHelper.textContent = `編集モード: #${target.id} を更新しています。保存すると情報が上書きされます。`;
+                }
+
+                this.form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+
+            resetFormState() {
                 this.form.reset();
                 this.guestsInput.value = 1;
                 this.ticketTypeSelect.value = 'standard';
-                this.render();
+                this.editingId = null;
+                this.submitButton.textContent = 'リストに追加';
+                this.cancelEditButton.hidden = true;
+                if (this.formHelper) {
+                    this.formHelper.textContent = this.defaultHelperMessage;
+                }
             }
 
             toggleCheckin(id, checkedIn) {
@@ -715,6 +791,7 @@
                     const node = this.template.content.cloneNode(true);
                     const card = node.querySelector('.attendee-card');
                     card.dataset.id = attendee.id;
+                    card.classList.toggle('editing', attendee.id === this.editingId);
 
                     card.querySelector('.eyebrow').textContent = `#${attendee.id}`;
                     card.querySelector('.attendee-card__name').textContent = attendee.name;
@@ -736,6 +813,9 @@
                     const checkinBtn = card.querySelector('.checkin-btn');
                     checkinBtn.textContent = attendee.checkedIn ? '未入場に戻す' : 'チェックイン';
                     checkinBtn.addEventListener('click', () => this.toggleCheckin(attendee.id, !attendee.checkedIn));
+
+                    const editBtn = card.querySelector('.edit-btn');
+                    editBtn.addEventListener('click', () => this.startEdit(attendee.id));
 
                     const deleteBtn = card.querySelector('.delete-btn');
                     deleteBtn.addEventListener('click', () => this.deleteAttendee(attendee.id));
