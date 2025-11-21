@@ -15,8 +15,8 @@
         <header class="app-header">
             <div>
                 <p class="eyebrow">AI Sales Insights</p>
-                <h1>Excelの売上データを瞬時に分析し、次の一手を提案します。</h1>
-                <p class="lede">日付・商品・カテゴリ・地域・売上・数量などの列を持つExcelファイルを読み込むだけ。重要指標、好調商品、伸び悩み領域を自動で見える化し、すぐに実行できるアクションを提示します。</p>
+                <h1>受注・請求データから顧客別の次アクションを提案します。</h1>
+                <p class="lede">受注No・担当営業・得意先名・受注日・売上請求日・デザイン有・企画構成有・品名・数量・社内売上のExcelを読み込むだけ。1ヶ月分の顧客別インサイトと即打ち手を表示します。</p>
                 <div class="upload-panel">
                     <label for="fileInput" class="upload-area">
                         <div class="upload-icon">📈</div>
@@ -28,7 +28,7 @@
                     </label>
                     <div class="upload-actions">
                         <button id="sampleData" class="ghost">サンプルデータを読み込む</button>
-                        <span class="hint">最低限「日付」「商品名」「カテゴリ」「地域」「売上」「数量」の列があれば分析できます。</span>
+                        <span class="hint">上記10列のうち最低限「得意先名」「売上請求日」「品名」「数量」「社内売上」があれば分析できます。</span>
                     </div>
                 </div>
             </div>
@@ -72,12 +72,12 @@
                     <div class="kpi">
                         <p>数量合計</p>
                         <h3 id="totalQty">--</h3>
-                        <small id="topRegion">強みの地域: --</small>
+                        <small id="topRegion">強い営業: --</small>
                     </div>
                     <div class="kpi">
-                        <p>トップ商品</p>
+                        <p>トップ顧客</p>
                         <h3 id="topProduct">--</h3>
-                        <small id="topCategory">トップカテゴリ: --</small>
+                        <small id="topCategory">主要品目: --</small>
                     </div>
                 </div>
             </section>

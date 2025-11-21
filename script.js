@@ -57,16 +57,16 @@ class SalesInsightApp {
 
     loadSampleData() {
         const sample = [
-            { 日付: '2024-05-02', 商品名: 'プレミアムノートPC', カテゴリ: 'PC', 地域: '東京', 売上: 280000, 数量: 4 },
-            { 日付: '2024-05-03', 商品名: 'ワイヤレスイヤホン', カテゴリ: '周辺機器', 地域: '大阪', 売上: 72000, 数量: 9 },
-            { 日付: '2024-05-07', 商品名: 'プレミアムノートPC', カテゴリ: 'PC', 地域: '名古屋', 売上: 210000, 数量: 3 },
-            { 日付: '2024-06-02', 商品名: 'ゲーミングマウス', カテゴリ: '周辺機器', 地域: '東京', 売上: 54000, 数量: 6 },
-            { 日付: '2024-06-05', 商品名: '4Kモニター', カテゴリ: 'モニター', 地域: '福岡', 売上: 190000, 数量: 5 },
-            { 日付: '2024-06-12', 商品名: 'ワイヤレスイヤホン', カテゴリ: '周辺機器', 地域: '札幌', 売上: 64000, 数量: 8 },
-            { 日付: '2024-06-15', 商品名: '4Kモニター', カテゴリ: 'モニター', 地域: '東京', 売上: 210000, 数量: 6 },
-            { 日付: '2024-07-01', 商品名: 'ノートPCスタンド', カテゴリ: 'アクセサリ', 地域: '大阪', 売上: 32000, 数量: 10 },
-            { 日付: '2024-07-02', 商品名: 'プレミアムノートPC', カテゴリ: 'PC', 地域: '東京', 売上: 320000, 数量: 5 },
-            { 日付: '2024-07-03', 商品名: 'ワイヤレスイヤホン', カテゴリ: '周辺機器', 地域: '東京', 売上: 76000, 数量: 10 },
+            { 受注No: 'A-101', 担当営業: '佐藤', 得意先名: '株式会社ブルーム', 受注日: '2024-07-02', 売上請求日: '2024-07-05', デザイン有: '有', 企画構成有: '無', 品名: 'ブランドLP制作', 数量: 1, 社内売上: 480000 },
+            { 受注No: 'A-102', 担当営業: '佐藤', 得意先名: '株式会社ブルーム', 受注日: '2024-07-10', 売上請求日: '2024-07-12', デザイン有: '有', 企画構成有: '有', 品名: 'SNS動画セット', 数量: 3, 社内売上: 360000 },
+            { 受注No: 'B-201', 担当営業: '鈴木', 得意先名: 'アクティブ商事', 受注日: '2024-07-04', 売上請求日: '2024-07-06', デザイン有: '無', 企画構成有: '無', 品名: '製品カタログ増刷', 数量: 800, 社内売上: 240000 },
+            { 受注No: 'B-202', 担当営業: '鈴木', 得意先名: 'アクティブ商事', 受注日: '2024-07-15', 売上請求日: '2024-07-18', デザイン有: '有', 企画構成有: '無', 品名: '展示会パネル', 数量: 20, 社内売上: 180000 },
+            { 受注No: 'C-301', 担当営業: '高橋', 得意先名: 'メディカルリンク', 受注日: '2024-07-08', 売上請求日: '2024-07-11', デザイン有: '無', 企画構成有: '有', 品名: '採用パンフ制作', 数量: 2, 社内売上: 520000 },
+            { 受注No: 'D-401', 担当営業: '田中', 得意先名: 'ミライテック', 受注日: '2024-07-01', 売上請求日: '2024-07-03', デザイン有: '有', 企画構成有: '有', 品名: '新製品ロゴ開発', 数量: 1, 社内売上: 280000 },
+            { 受注No: 'D-402', 担当営業: '田中', 得意先名: 'ミライテック', 受注日: '2024-07-14', 売上請求日: '2024-07-17', デザイン有: '無', 企画構成有: '無', 品名: 'パッケージ改訂', 数量: 1, 社内売上: 120000 },
+            { 受注No: 'E-501', 担当営業: '山本', 得意先名: 'サンライト電機', 受注日: '2024-07-05', 売上請求日: '2024-07-09', デザイン有: '無', 企画構成有: '無', 品名: '取扱説明書印刷', 数量: 1200, 社内売上: 300000 },
+            { 受注No: 'F-601', 担当営業: '山本', 得意先名: '北斗物流', 受注日: '2024-07-18', 売上請求日: '2024-07-19', デザイン有: '有', 企画構成有: '無', 品名: '車両マーキング', 数量: 12, 社内売上: 210000 },
+            { 受注No: 'G-701', 担当営業: '佐藤', 得意先名: 'リーフ食品', 受注日: '2024-07-09', 売上請求日: '2024-07-13', デザイン有: '無', 企画構成有: '有', 品名: 'キャンペーンPOP', 数量: 300, 社内売上: 260000 },
         ];
         this.handleRows(sample);
     }
@@ -74,36 +74,49 @@ class SalesInsightApp {
     handleRows(rawRows) {
         const rows = rawRows
             .map((row) => this.normalizeRow(row))
-            .filter((row) => row.date && !Number.isNaN(row.amount));
+            .filter((row) => row.billingDate && !Number.isNaN(row.amount));
 
         this.data = rows;
         this.updateUI();
     }
 
     normalizeRow(row) {
+        const normalizeKey = (key) => key.trim().toLowerCase();
+        const entries = Object.entries(row).map(([k, v]) => [normalizeKey(k), v]);
         const getValue = (keys) => {
-            const entry = Object.entries(row).find(([key]) => keys.includes(key.trim().toLowerCase()));
+            const entry = entries.find(([key]) => keys.includes(key));
             return entry ? entry[1] : undefined;
         };
 
-        const date = getValue(['日付', 'date', '注文日', '購入日']);
-        const product = getValue(['商品名', 'product', 'アイテム']);
-        const category = getValue(['カテゴリ', 'カテゴリー', 'category']);
-        const region = getValue(['地域', 'エリア', 'region']);
-        const amountRaw = getValue(['売上', 'amount', 'sales', '金額', 'revenue']);
-        const qtyRaw = getValue(['数量', 'qty', 'quantity', '個数']);
+        const orderNo = getValue(['受注no', '注文番号', 'order']);
+        const rep = getValue(['担当営業', '営業', 'sales']);
+        const client = getValue(['得意先名', '顧客', 'client', 'customer']);
+        const orderDate = getValue(['受注日', '注文日', 'date']);
+        const billingDate = getValue(['売上請求日', '請求日', 'billing', 'invoice']);
+        const design = getValue(['デザイン有', 'デザイン', 'design']);
+        const planning = getValue(['企画構成有', '企画', 'planning']);
+        const item = getValue(['品名', '商品', 'item', 'product']);
+        const qtyRaw = getValue(['数量', 'qty', '数量(個)', '数量(部)']);
+        const amountRaw = getValue(['社内売上', '売上', 'sales', 'amount']);
 
         const amount = Number(amountRaw) || 0;
         const quantity = Number(qtyRaw) || 1;
-        const parsedDate = date ? new Date(date) : null;
-        const monthKey = parsedDate && !isNaN(parsedDate) ? `${parsedDate.getFullYear()}-${String(parsedDate.getMonth() + 1).padStart(2, '0')}` : '不明';
+        const parsedBilling = billingDate ? new Date(billingDate) : null;
+        const billingValid = parsedBilling && !isNaN(parsedBilling);
+        const monthKey = billingValid ? `${parsedBilling.getFullYear()}-${String(parsedBilling.getMonth() + 1).padStart(2, '0')}` : '不明';
+        const weekKey = billingValid ? `週${Math.ceil(parsedBilling.getDate() / 7)}` : '不明';
 
         return {
-            date: parsedDate,
+            orderNo: orderNo || '不明',
+            rep: rep || '未割当',
+            client: client || '不明',
+            orderDate: orderDate ? new Date(orderDate) : null,
+            billingDate: billingValid ? parsedBilling : null,
             monthKey,
-            product: product || '不明',
-            category: category || '未分類',
-            region: region || '不明',
+            weekKey,
+            designIncluded: `${design}`.includes('有'),
+            planningIncluded: `${planning}`.includes('有'),
+            item: item || '未記入',
             amount,
             quantity,
         };
@@ -118,45 +131,50 @@ class SalesInsightApp {
         const avgOrder = totalSales / orderCount;
         const avgPrice = totalSales / totalQty;
 
-        const byProduct = this.aggregateBy(this.data, 'product');
-        const byCategory = this.aggregateBy(this.data, 'category');
-        const byRegion = this.aggregateBy(this.data, 'region');
-        const byMonth = this.aggregateBy(this.data, 'monthKey', 'key');
+        const byClient = this.aggregateBy(this.data, 'client', { includeFlags: true });
+        const byRep = this.aggregateBy(this.data, 'rep');
+        const byItem = this.aggregateBy(this.data, 'item');
+        const byMonth = this.aggregateBy(this.data, 'monthKey', { sort: 'key' });
+        const byWeek = this.aggregateBy(this.data, 'weekKey');
 
-        const topProduct = byProduct[0];
-        const topCategory = byCategory[0];
-        const topRegion = byRegion[0];
+        const topClient = byClient[0];
+        const topRep = byRep[0];
+        const topItem = byItem[0];
 
-        const monthTrend = byMonth.slice(0, 3);
+        const weekTrend = byWeek.slice(0, 4);
 
         this.totalSalesEl.textContent = this.formatCurrency(totalSales);
         this.totalQtyEl.textContent = `${totalQty.toLocaleString()} 個`;
         this.orderCountEl.textContent = `取引件数: ${orderCount.toLocaleString()}`;
         this.avgOrderEl.textContent = this.formatCurrency(avgOrder);
         this.avgPriceEl.textContent = `平均単価: ${this.formatCurrency(avgPrice)}`;
-        this.topProductEl.textContent = topProduct ? `${topProduct.label}` : '--';
-        this.topCategoryEl.textContent = topCategory ? `${topCategory.label}` : '--';
-        this.topRegionEl.textContent = topRegion ? `${topRegion.label}` : '--';
+        this.topProductEl.textContent = topClient ? `${topClient.label}` : '--';
+        this.topCategoryEl.textContent = topItem ? `${topItem.label}` : '--';
+        this.topRegionEl.textContent = topRep ? `${topRep.label}` : '--';
         this.dataStatusEl.textContent = `${orderCount}件を読込済み`;
 
         const monthlyAvg = this.calculateMonthlyAverage(byMonth);
         this.heroSales.textContent = this.formatCurrency(monthlyAvg || totalSales);
-        this.heroTrend.textContent = monthTrend[0] ? `${monthTrend[0].label}が直近のピーク` : 'データを確認してください';
-        this.heroPoints.innerHTML = this.buildHeroPoints(topProduct, topCategory, topRegion);
+        this.heroTrend.textContent = weekTrend[0] ? `${weekTrend[0].label}の請求が直近のピーク` : 'データを確認してください';
+        this.heroPoints.innerHTML = this.buildHeroPoints(topClient, topRep, topItem);
 
-        this.renderTrend(monthTrend);
-        this.renderRanking(byProduct, byCategory);
-        this.renderInsights({ topProduct, topCategory, topRegion, byMonth, byRegion });
+        this.renderTrend(weekTrend);
+        this.renderRanking(byClient, byItem);
+        this.renderInsights({ byClient, byRep, byWeek });
         this.renderPreview();
     }
 
-    aggregateBy(data, key, sort = 'amount') {
+    aggregateBy(data, key, options = {}) {
+        const { sort = 'amount', includeFlags = false } = typeof options === 'string' ? { sort: options } : options;
         const map = new Map();
         data.forEach((row) => {
             const current = map.get(row[key]) || { amount: 0, quantity: 0 };
             map.set(row[key], {
                 amount: current.amount + row.amount,
                 quantity: current.quantity + row.quantity,
+                orderCount: (current.orderCount || 0) + 1,
+                designCount: includeFlags ? (current.designCount || 0) + (row.designIncluded ? 1 : 0) : undefined,
+                planningCount: includeFlags ? (current.planningCount || 0) + (row.planningIncluded ? 1 : 0) : undefined,
             });
         });
 
@@ -178,33 +196,36 @@ class SalesInsightApp {
         return `¥${Math.round(value).toLocaleString()}`;
     }
 
-    buildHeroPoints(topProduct, topCategory, topRegion) {
+    buildHeroPoints(topClient, topRep, topItem) {
         const points = [
-            topProduct ? `🔥 好調: ${topProduct.label}（${this.formatCurrency(topProduct.amount)}）` : null,
-            topCategory ? `🏷️ 伸びているカテゴリ: ${topCategory.label}` : null,
-            topRegion ? `🗺️ 強い地域: ${topRegion.label}` : null,
+            topClient ? `🤝 取引拡大余地: ${topClient.label}（${this.formatCurrency(topClient.amount)}）` : null,
+            topItem ? `📦 主要品目: ${topItem.label}` : null,
+            topRep ? `👤 受注リーダー: ${topRep.label}` : null,
         ].filter(Boolean);
 
         return points.map((p) => `<li>${p}</li>`).join('');
     }
 
-    renderTrend(monthTrend) {
+    renderTrend(weekTrend) {
         this.trendList.innerHTML = '';
-        if (!monthTrend.length) {
+        if (!weekTrend.length) {
             this.trendList.innerHTML = '<li>データが不足しています</li>';
             return;
         }
 
-        this.trendLabel.textContent = `${monthTrend.length}ヶ月分`;
-        monthTrend.forEach((item) => {
+        this.trendLabel.textContent = `${weekTrend.length}週分`;
+        weekTrend.forEach((item) => {
             const li = document.createElement('li');
             li.innerHTML = `<strong>${item.label}</strong><br><small>${this.formatCurrency(item.amount)} / ${item.quantity.toLocaleString()}個</small>`;
             this.trendList.appendChild(li);
         });
     }
 
-    renderRanking(byProduct, byCategory) {
-        const rows = [...byProduct.slice(0, 5), ...byCategory.slice(0, 3)];
+    renderRanking(byClient, byItem) {
+        const rows = [
+            ...byClient.slice(0, 5).map((row) => ({ ...row, type: '顧客' })),
+            ...byItem.slice(0, 3).map((row) => ({ ...row, type: '品目' })),
+        ];
         this.rankingTable.innerHTML = '';
         if (!rows.length) {
             this.rankingTable.innerHTML = '<tr><td colspan="3">データが不足しています</td></tr>';
@@ -215,7 +236,7 @@ class SalesInsightApp {
         rows.forEach((row) => {
             const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td>${row.label}</td>
+                <td>${row.type ? `[${row.type}] ` : ''}${row.label}</td>
                 <td>${this.formatCurrency(row.amount)}</td>
                 <td>${row.quantity.toLocaleString()}個</td>
             `;
@@ -224,44 +245,57 @@ class SalesInsightApp {
         this.rankingLabel.textContent = `${rows.length}件表示`;
     }
 
-    renderInsights({ topProduct, topCategory, topRegion, byMonth, byRegion }) {
+    renderInsights({ byClient, byRep, byWeek }) {
         const insights = [];
 
-        if (topProduct) {
+        const topClient = byClient[0];
+        if (topClient) {
+            const designRate = topClient.designCount && topClient.orderCount
+                ? Math.round((topClient.designCount / topClient.orderCount) * 100)
+                : 0;
             insights.push({
-                title: `${topProduct.label}を軸に粗利最大化`,
-                detail: '広告/販促枠を重点配分し、在庫と供給計画を優先確保。関連商品をバンドルして客単価を上げましょう。',
+                title: `${topClient.label}：重点維持とクロスセル`,
+                detail: `請求合計 ${this.formatCurrency(topClient.amount)}。デザイン付帯率${designRate}%なので、企画・動画など非付帯領域の提案で単価引き上げを狙いましょう。`,
             });
         }
 
-        if (byRegion.length > 1) {
-            const weakest = byRegion[byRegion.length - 1];
+        const lowTouch = byClient.find((c) => c.orderCount === 1 && c.amount > 0);
+        if (lowTouch) {
             insights.push({
-                title: `${weakest.label}は伸びしろ大`,
-                detail: '配送リードタイムや販促経路を見直し、地域限定キャンペーンで需要喚起を検証。',
+                title: `${lowTouch.label}：初回フォロー必須`,
+                detail: `取引1件 ${this.formatCurrency(lowTouch.amount)}。納品後ヒアリングで継続案件を確認し、次の制作メニューをカタログで提示。`,
             });
         }
 
-        if (byMonth.length >= 2) {
-            const diff = byMonth[0].amount - byMonth[1].amount;
+        const noDesignClients = byClient.filter((c) => c.designCount === 0 && c.amount > 0).slice(0, 1);
+        if (noDesignClients.length) {
+            insights.push({
+                title: `${noDesignClients[0].label}：デザイン提案の余地`,
+                detail: 'デザイン未付帯。販促物のリブランディングやテンプレート提案で付加価値を追加し、単価改善を提案。',
+            });
+        }
+
+        const repGap = byRep.length >= 2 ? byRep[0].amount - byRep[byRep.length - 1].amount : 0;
+        if (repGap > 0 && byRep.length >= 2) {
+            insights.push({
+                title: `営業間の実績差を共有`,
+                detail: `${byRep[0].label} と ${byRep[byRep.length - 1].label} で差額 ${this.formatCurrency(repGap)}。案件組成プロセス・提案資料を横展開し底上げ。`,
+            });
+        }
+
+        if (byWeek.length >= 2) {
+            const diff = byWeek[0].amount - byWeek[1].amount;
             const direction = diff >= 0 ? '増加' : '減少';
             insights.push({
-                title: `直近月は${direction}傾向`,
-                detail: `前月比で${this.formatCurrency(Math.abs(diff))}の${direction}。要因となる商品/地域を深掘りしましょう。`,
-            });
-        }
-
-        if (topCategory) {
-            insights.push({
-                title: `${topCategory.label}カテゴリの深耕`,
-                detail: 'セット販売・アップセル・リピート施策を短期実装。レビュー改善と返品要因のケアでCVRを上げます。',
+                title: `直近週は${direction}傾向`,
+                detail: `前週比で${this.formatCurrency(Math.abs(diff))}の${direction}。案件発生日と担当を照合し、再現性/注意点を洗い出してください。`,
             });
         }
 
         if (!insights.length) {
             insights.push({
                 title: 'データが不足しています',
-                detail: 'まずは日付・商品名・カテゴリ・地域・売上・数量を含むファイルをアップロードしてください。',
+                detail: '「得意先名」「売上請求日」「品名」「数量」「社内売上」が含まれるExcel/CSVをアップロードしてください。',
             });
         }
 
@@ -274,23 +308,25 @@ class SalesInsightApp {
         const slice = this.data.slice(-6);
         if (!slice.length) {
             this.previewHead.innerHTML = '';
-            this.previewBody.innerHTML = '<tr><td colspan="6">データがありません</td></tr>';
+            this.previewBody.innerHTML = '<tr><td colspan="8">データがありません</td></tr>';
             this.previewLabel.textContent = '--';
             return;
         }
 
         this.previewLabel.textContent = `${slice.length}行表示中`;
-        const headers = ['日付', '商品名', 'カテゴリ', '地域', '売上', '数量'];
+        const headers = ['売上請求日', '得意先名', '品名', '数量', '社内売上', '担当営業', 'デザイン有', '企画構成有'];
         this.previewHead.innerHTML = `<tr>${headers.map((h) => `<th>${h}</th>`).join('')}</tr>`;
         this.previewBody.innerHTML = slice
             .map((row) => `
                 <tr>
-                    <td>${row.date ? row.date.toISOString().slice(0, 10) : '---'}</td>
-                    <td>${row.product}</td>
-                    <td>${row.category}</td>
-                    <td>${row.region}</td>
-                    <td>${this.formatCurrency(row.amount)}</td>
+                    <td>${row.billingDate ? row.billingDate.toISOString().slice(0, 10) : '---'}</td>
+                    <td>${row.client}</td>
+                    <td>${row.item}</td>
                     <td>${row.quantity}</td>
+                    <td>${this.formatCurrency(row.amount)}</td>
+                    <td>${row.rep}</td>
+                    <td>${row.designIncluded ? '有' : '無'}</td>
+                    <td>${row.planningIncluded ? '有' : '無'}</td>
                 </tr>
             `)
             .join('');
