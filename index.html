@@ -3,55 +3,815 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>シンプル TODO リスト</title>
-    <link rel="stylesheet" href="style.css">
+    <title>マルシェ来場者チェックイン（単一ファイル版）</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg: #0f172a;
+            --card: #0b1325;
+            --panel: #11182c;
+            --primary: #38bdf8;
+            --primary-strong: #0ea5e9;
+            --text: #e2e8f0;
+            --muted: #94a3b8;
+            --border: #1f2a44;
+            --shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+            --danger: #fb7185;
+        }
+
+        body {
+            font-family: 'Noto Sans JP', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: radial-gradient(circle at 20% 20%, rgba(56, 189, 248, 0.15), transparent 25%),
+                        radial-gradient(circle at 80% 0%, rgba(14, 165, 233, 0.2), transparent 25%),
+                        radial-gradient(circle at 50% 50%, rgba(251, 113, 133, 0.15), transparent 28%),
+                        var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 32px;
+        }
+
+        .page {
+            max-width: 1200px;
+            margin: 0 auto 80px;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.12), rgba(14, 165, 233, 0.08));
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 28px;
+            display: grid;
+            grid-template-columns: 1.3fr 1fr;
+            gap: 20px;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(8px);
+        }
+
+        .hero__text h1 {
+            font-size: 32px;
+            margin: 6px 0;
+        }
+
+        .hero__text .lede {
+            color: var(--muted);
+            line-height: 1.6;
+        }
+
+        .hero__tags {
+            margin-top: 14px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .hero__stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .stat-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: var(--shadow);
+        }
+
+        .stat-card p {
+            color: var(--muted);
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .stat-card h2 {
+            font-size: 26px;
+        }
+
+        .stat-card small {
+            color: var(--muted);
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 1fr 1.1fr;
+            gap: 20px;
+            margin-top: 24px;
+        }
+
+        .panel {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            box-shadow: var(--shadow);
+            padding: 22px;
+        }
+
+        .panel__header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+        }
+
+        .panel__header--actions {
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .eyebrow {
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .muted {
+            color: var(--muted);
+            margin-top: 4px;
+        }
+
+        .form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .form__group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form__grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        label {
+            font-weight: 600;
+            color: #e5e7eb;
+        }
+
+        input, select, textarea {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px;
+            color: var(--text);
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.25);
+        }
+
+        textarea {
+            resize: vertical;
+        }
+
+        .required {
+            background: rgba(251, 113, 133, 0.12);
+            border: 1px solid rgba(251, 113, 133, 0.4);
+            color: #fecdd3;
+            padding: 2px 6px;
+            border-radius: 6px;
+            font-size: 12px;
+            margin-left: 6px;
+        }
+
+        .btn {
+            border: none;
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.12s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+            color: var(--text);
+        }
+
+        .btn--primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-strong));
+            box-shadow: 0 10px 30px rgba(14, 165, 233, 0.45);
+        }
+
+        .btn--ghost {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+
+        .btn.danger {
+            color: #fecdd3;
+            border-color: rgba(251, 113, 133, 0.5);
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+            opacity: 0.9;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        .form__helper {
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .segmented {
+            display: inline-flex;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .segmented__btn {
+            background: transparent;
+            border: none;
+            color: var(--muted);
+            padding: 10px 14px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: background 0.2s ease, color 0.2s ease;
+        }
+
+        .segmented__btn.active {
+            background: rgba(56, 189, 248, 0.15);
+            color: var(--text);
+        }
+
+        .search {
+            position: relative;
+        }
+
+        .search input {
+            padding-left: 38px;
+            width: 240px;
+        }
+
+        .search__icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--muted);
+        }
+
+        .attendee-list {
+            display: grid;
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .attendee-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 14px;
+            box-shadow: var(--shadow);
+            display: grid;
+            gap: 8px;
+        }
+
+        .attendee-card__header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .attendee-card__name {
+            font-size: 20px;
+        }
+
+        .attendee-card__meta {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .attendee-card__contact,
+        .attendee-card__note {
+            color: var(--muted);
+            line-height: 1.5;
+        }
+
+        .attendee-card__footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border);
+            font-size: 13px;
+        }
+
+        .chip--status.checked {
+            background: rgba(56, 189, 248, 0.15);
+            border-color: rgba(56, 189, 248, 0.35);
+            color: #bae6fd;
+        }
+
+        .chip--status.waiting {
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--muted);
+        }
+
+        .chip--type {
+            background: rgba(14, 165, 233, 0.15);
+            border-color: rgba(14, 165, 233, 0.45);
+            color: #bae6fd;
+        }
+
+        .chip--guests {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: var(--border);
+            color: var(--muted);
+        }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 10px;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 999px;
+            font-weight: 700;
+            color: var(--muted);
+        }
+
+        .timestamp {
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .empty {
+            border: 1px dashed var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            color: var(--muted);
+        }
+
+        @media (max-width: 1024px) {
+            body { padding: 16px; }
+            .layout { grid-template-columns: 1fr; }
+            .hero { grid-template-columns: 1fr; }
+            .hero__stats { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
+        }
+
+        @media (max-width: 640px) {
+            .form__grid { grid-template-columns: 1fr; }
+            .panel__header { align-items: flex-start; }
+            .panel__header--actions { flex-direction: column; }
+            .search input { width: 100%; }
+            .attendee-card__footer { flex-direction: column; align-items: flex-start; }
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>📝 TODO リスト</h1>
-            <button id="themeToggle" class="theme-toggle" title="ダークモード切り替え">🌙</button>
-        </header>
-        
-        <div class="todo-input">
-            <div class="input-row">
-                <input type="text" id="todoInput" placeholder="新しいTODOを入力してください..." maxlength="100">
-                <select id="categorySelect">
-                    <option value="general">一般</option>
-                    <option value="work">仕事</option>
-                    <option value="personal">プライベート</option>
-                    <option value="shopping">買い物</option>
-                    <option value="health">健康</option>
-                </select>
+    <div class="page">
+        <header class="hero">
+            <div class="hero__text">
+                <p class="eyebrow">Marche Check-in</p>
+                <h1>マルシェ来場者チェックイン</h1>
+                <p class="lede">受付と入場をシンプルに。スタッフ全員で最新の来場状況を共有できます。</p>
+                <div class="hero__tags">
+                    <span class="pill">#受付</span>
+                    <span class="pill">#同時確認</span>
+                    <span class="pill">#スムーズな導線</span>
+                </div>
             </div>
-            <button id="addBtn">追加</button>
-        </div>
-        
-        <div class="category-filters">
-            <button class="category-filter active" data-category="all">すべて</button>
-            <button class="category-filter" data-category="general">一般</button>
-            <button class="category-filter" data-category="work">仕事</button>
-            <button class="category-filter" data-category="personal">プライベート</button>
-            <button class="category-filter" data-category="shopping">買い物</button>
-            <button class="category-filter" data-category="health">健康</button>
-        </div>
-        
-        <div class="todo-stats">
-            <span id="totalCount">合計: 0</span>
-            <span id="completedCount">完了: 0</span>
-            <span id="remainingCount">残り: 0</span>
-        </div>
-        
-        <ul id="todoList" class="todo-list">
-            <!-- TODOアイテムがここに表示されます -->
-        </ul>
-        
-        <div class="actions">
-            <button id="clearCompleted">完了済みを削除</button>
-            <button id="clearAll">全て削除</button>
-        </div>
+            <div class="hero__stats">
+                <div class="stat-card">
+                    <p>合計登録</p>
+                    <h2 id="statTotal">0 名</h2>
+                    <small>事前登録＋当日受付の合計</small>
+                </div>
+                <div class="stat-card">
+                    <p>チェックイン済み</p>
+                    <h2 id="statCheckedIn">0 名</h2>
+                    <small>最新の入場数</small>
+                </div>
+                <div class="stat-card">
+                    <p>未入場</p>
+                    <h2 id="statWaiting">0 名</h2>
+                    <small>案内待ちのお客様</small>
+                </div>
+            </div>
+        </header>
+
+        <main class="layout">
+            <section class="panel panel--form">
+                <div class="panel__header">
+                    <div>
+                        <p class="eyebrow">来場者登録</p>
+                        <h3>受付フォーム</h3>
+                        <p class="muted">氏名と連絡先を入力するだけでリストに追加されます。</p>
+                    </div>
+                </div>
+                <form id="attendeeForm" class="form">
+                    <div class="form__group">
+                        <label for="name">氏名 <span class="required">必須</span></label>
+                        <input type="text" id="name" name="name" placeholder="山田 太郎" required maxlength="80">
+                    </div>
+                    <div class="form__grid">
+                        <div class="form__group">
+                            <label for="email">メール</label>
+                            <input type="email" id="email" name="email" placeholder="guest@example.com" maxlength="120">
+                        </div>
+                        <div class="form__group">
+                            <label for="phone">電話番号</label>
+                            <input type="tel" id="phone" name="phone" placeholder="090-1234-5678" maxlength="30">
+                        </div>
+                    </div>
+                    <div class="form__grid">
+                        <div class="form__group">
+                            <label for="ticketType">チケット/区分</label>
+                            <select id="ticketType" name="ticketType">
+                                <option value="standard">一般</option>
+                                <option value="vip">VIP</option>
+                                <option value="vendor">出店者</option>
+                                <option value="staff">スタッフ</option>
+                            </select>
+                        </div>
+                        <div class="form__group">
+                            <label for="guests">同行者人数</label>
+                            <input type="number" id="guests" name="guests" min="1" value="1">
+                        </div>
+                    </div>
+                    <div class="form__group">
+                        <label for="note">メモ</label>
+                        <textarea id="note" name="note" rows="3" placeholder="アレルギー情報、導線メモなど"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn--primary">リストに追加</button>
+                    <p class="form__helper">登録後すぐにチェックイン操作が可能です。最新の並び順で表示されます。</p>
+                </form>
+            </section>
+
+            <section class="panel panel--list">
+                <div class="panel__header panel__header--actions">
+                    <div>
+                        <p class="eyebrow">来場状況</p>
+                        <h3>チェックインリスト</h3>
+                    </div>
+                    <div class="actions">
+                        <div class="segmented" id="statusFilters">
+                            <button class="segmented__btn active" data-status="all">すべて</button>
+                            <button class="segmented__btn" data-status="waiting">未入場</button>
+                            <button class="segmented__btn" data-status="checked">チェックイン済み</button>
+                        </div>
+                        <div class="search">
+                            <input type="search" id="searchInput" placeholder="氏名・メール・電話で検索">
+                            <span class="search__icon">🔍</span>
+                        </div>
+                    </div>
+                </div>
+                <div id="attendeeList" class="attendee-list"></div>
+            </section>
+        </main>
     </div>
-    
-    <script src="script.js"></script>
+
+    <template id="attendeeTemplate">
+        <article class="attendee-card">
+            <div class="attendee-card__header">
+                <div>
+                    <p class="eyebrow">#ID</p>
+                    <h4 class="attendee-card__name">Name</h4>
+                </div>
+                <div class="chip chip--status">未入場</div>
+            </div>
+            <div class="attendee-card__meta">
+                <span class="chip chip--type">一般</span>
+                <span class="chip chip--guests">1 名</span>
+            </div>
+            <p class="attendee-card__contact"></p>
+            <p class="attendee-card__note"></p>
+            <div class="attendee-card__footer">
+                <small class="timestamp"></small>
+                <div class="btn-group">
+                    <button class="btn btn--ghost checkin-btn">チェックイン</button>
+                    <button class="btn btn--ghost danger delete-btn">削除</button>
+                </div>
+            </div>
+        </article>
+    </template>
+
+    <script>
+        class CheckinApp {
+            constructor() {
+                this.storageKey = 'marche-checkin-attendees-v1';
+                this.attendees = [];
+                this.statusFilter = 'all';
+                this.searchQuery = '';
+
+                this.cacheElements();
+                this.bindEvents();
+                this.loadAttendees();
+            }
+
+            cacheElements() {
+                this.form = document.getElementById('attendeeForm');
+                this.nameInput = document.getElementById('name');
+                this.emailInput = document.getElementById('email');
+                this.phoneInput = document.getElementById('phone');
+                this.ticketTypeSelect = document.getElementById('ticketType');
+                this.guestsInput = document.getElementById('guests');
+                this.noteInput = document.getElementById('note');
+                this.attendeeList = document.getElementById('attendeeList');
+                this.template = document.getElementById('attendeeTemplate');
+                this.searchInput = document.getElementById('searchInput');
+                this.statusButtons = Array.from(document.querySelectorAll('#statusFilters .segmented__btn'));
+
+                this.statTotal = document.getElementById('statTotal');
+                this.statCheckedIn = document.getElementById('statCheckedIn');
+                this.statWaiting = document.getElementById('statWaiting');
+            }
+
+            bindEvents() {
+                this.form.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.handleSubmit();
+                });
+
+                this.statusButtons.forEach((btn) => {
+                    btn.addEventListener('click', () => {
+                        this.statusButtons.forEach((b) => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        this.statusFilter = btn.dataset.status;
+                        this.render();
+                    });
+                });
+
+                this.searchInput.addEventListener('input', (e) => {
+                    this.searchQuery = e.target.value.toLowerCase();
+                    this.render();
+                });
+            }
+
+            loadAttendees() {
+                const saved = this.safeLoad();
+                if (saved) {
+                    this.attendees = saved;
+                } else {
+                    this.attendees = this.getSampleAttendees();
+                    this.saveAttendees();
+                }
+                this.render();
+            }
+
+            safeLoad() {
+                try {
+                    const raw = localStorage.getItem(this.storageKey);
+                    if (!raw) return null;
+                    return JSON.parse(raw);
+                } catch (error) {
+                    console.warn('ローカルストレージからの読み込みに失敗しました', error);
+                    return null;
+                }
+            }
+
+            saveAttendees() {
+                try {
+                    localStorage.setItem(this.storageKey, JSON.stringify(this.attendees));
+                } catch (error) {
+                    console.warn('ローカルストレージへの保存に失敗しました', error);
+                }
+            }
+
+            handleSubmit() {
+                const payload = {
+                    id: this.generateId(),
+                    name: this.nameInput.value.trim(),
+                    email: this.emailInput.value.trim(),
+                    phone: this.phoneInput.value.trim(),
+                    ticketType: this.ticketTypeSelect.value,
+                    guests: Number(this.guestsInput.value) || 1,
+                    note: this.noteInput.value.trim(),
+                    createdAt: new Date().toISOString(),
+                    checkedIn: false,
+                    checkedInAt: null
+                };
+
+                if (!payload.name) {
+                    this.showInlineMessage('氏名は必須です。');
+                    return;
+                }
+
+                this.attendees = [payload, ...this.attendees];
+                this.saveAttendees();
+                this.form.reset();
+                this.guestsInput.value = 1;
+                this.ticketTypeSelect.value = 'standard';
+                this.render();
+            }
+
+            toggleCheckin(id, checkedIn) {
+                this.attendees = this.attendees.map((item) => {
+                    if (item.id !== id) return item;
+                    return {
+                        ...item,
+                        checkedIn,
+                        checkedInAt: checkedIn ? new Date().toISOString() : null
+                    };
+                });
+                this.saveAttendees();
+                this.render();
+            }
+
+            deleteAttendee(id) {
+                const confirmed = confirm('この来場者をリストから削除しますか？');
+                if (!confirmed) return;
+
+                this.attendees = this.attendees.filter((item) => item.id !== id);
+                this.saveAttendees();
+                this.render();
+            }
+
+            showInlineMessage(message) {
+                const node = document.createElement('div');
+                node.className = 'empty';
+                node.textContent = message;
+                this.attendeeList.prepend(node);
+                setTimeout(() => node.remove(), 2500);
+            }
+
+            filterAttendees() {
+                return this.attendees
+                    .filter((attendee) => {
+                        if (this.statusFilter === 'checked') return attendee.checkedIn;
+                        if (this.statusFilter === 'waiting') return !attendee.checkedIn;
+                        return true;
+                    })
+                    .filter((attendee) => {
+                        if (!this.searchQuery) return true;
+                        const keyword = this.searchQuery;
+                        return (
+                            attendee.name.toLowerCase().includes(keyword) ||
+                            attendee.email.toLowerCase().includes(keyword) ||
+                            attendee.phone.toLowerCase().includes(keyword)
+                        );
+                    });
+            }
+
+            render() {
+                this.renderStats();
+                this.renderList();
+            }
+
+            renderStats() {
+                const total = this.attendees.length;
+                const checked = this.attendees.filter((a) => a.checkedIn).length;
+                const waiting = total - checked;
+
+                this.statTotal.textContent = `${total} 名`;
+                this.statCheckedIn.textContent = `${checked} 名`;
+                this.statWaiting.textContent = `${waiting} 名`;
+            }
+
+            renderList() {
+                this.attendeeList.innerHTML = '';
+                const list = this.filterAttendees();
+
+                if (list.length === 0) {
+                    const empty = document.createElement('div');
+                    empty.className = 'empty';
+                    empty.textContent = '表示できる来場者がまだいません。登録フォームから追加してください。';
+                    this.attendeeList.appendChild(empty);
+                    return;
+                }
+
+                list.forEach((attendee) => {
+                    const node = this.template.content.cloneNode(true);
+                    const card = node.querySelector('.attendee-card');
+                    card.dataset.id = attendee.id;
+
+                    card.querySelector('.eyebrow').textContent = `#${attendee.id}`;
+                    card.querySelector('.attendee-card__name').textContent = attendee.name;
+                    card.querySelector('.attendee-card__contact').textContent = this.composeContact(attendee);
+                    card.querySelector('.attendee-card__note').textContent = attendee.note || 'メモなし';
+                    card.querySelector('.chip--type').textContent = this.getTicketLabel(attendee.ticketType);
+                    card.querySelector('.chip--guests').textContent = `${attendee.guests} 名`;
+
+                    const statusChip = card.querySelector('.chip--status');
+                    statusChip.textContent = attendee.checkedIn ? 'チェックイン済み' : '未入場';
+                    statusChip.classList.toggle('checked', attendee.checkedIn);
+                    statusChip.classList.toggle('waiting', !attendee.checkedIn);
+
+                    const timestamp = card.querySelector('.timestamp');
+                    timestamp.textContent = attendee.checkedIn
+                        ? `入場: ${this.formatDate(attendee.checkedInAt)}`
+                        : `登録: ${this.formatDate(attendee.createdAt)}`;
+
+                    const checkinBtn = card.querySelector('.checkin-btn');
+                    checkinBtn.textContent = attendee.checkedIn ? '未入場に戻す' : 'チェックイン';
+                    checkinBtn.addEventListener('click', () => this.toggleCheckin(attendee.id, !attendee.checkedIn));
+
+                    const deleteBtn = card.querySelector('.delete-btn');
+                    deleteBtn.addEventListener('click', () => this.deleteAttendee(attendee.id));
+
+                    this.attendeeList.appendChild(node);
+                });
+            }
+
+            formatDate(value) {
+                if (!value) return '—';
+                const date = new Date(value);
+                return `${date.getMonth() + 1}/${date.getDate()} ${date.getHours().toString().padStart(2, '0')}:${date
+                    .getMinutes()
+                    .toString()
+                    .padStart(2, '0')}`;
+            }
+
+            composeContact(attendee) {
+                const email = attendee.email ? `📧 ${attendee.email}` : '';
+                const phone = attendee.phone ? `☎️ ${attendee.phone}` : '';
+                return [email, phone].filter(Boolean).join(' / ') || '連絡先未登録';
+            }
+
+            getTicketLabel(type) {
+                const map = {
+                    standard: '一般',
+                    vip: 'VIP',
+                    vendor: '出店者',
+                    staff: 'スタッフ'
+                };
+                return map[type] || '一般';
+            }
+
+            generateId() {
+                const random = Math.floor(Math.random() * 900 + 100); // 100-999
+                return `${Date.now().toString().slice(-6)}-${random}`;
+            }
+
+            getSampleAttendees() {
+                const now = Date.now();
+                return [
+                    {
+                        id: 'A-1001',
+                        name: '山田 太郎',
+                        email: 'taro@example.com',
+                        phone: '090-1111-2222',
+                        ticketType: 'standard',
+                        guests: 2,
+                        note: '家族で来場、ベビーカーあり',
+                        createdAt: new Date(now - 60 * 60 * 1000).toISOString(),
+                        checkedIn: false,
+                        checkedInAt: null
+                    },
+                    {
+                        id: 'B-2048',
+                        name: '佐藤 花子',
+                        email: 'hanako@example.com',
+                        phone: '080-3333-4444',
+                        ticketType: 'vip',
+                        guests: 1,
+                        note: '主催者と面談希望',
+                        createdAt: new Date(now - 2 * 60 * 60 * 1000).toISOString(),
+                        checkedIn: true,
+                        checkedInAt: new Date(now - 40 * 60 * 1000).toISOString()
+                    },
+                    {
+                        id: 'C-3055',
+                        name: '出店者：Blue Cafe',
+                        email: '',
+                        phone: '03-5555-6666',
+                        ticketType: 'vendor',
+                        guests: 3,
+                        note: 'キッチンカー、電源利用',
+                        createdAt: new Date(now - 3 * 60 * 60 * 1000).toISOString(),
+                        checkedIn: true,
+                        checkedInAt: new Date(now - 90 * 60 * 1000).toISOString()
+                    }
+                ];
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            new CheckinApp();
+        });
+    </script>
 </body>
 </html>
