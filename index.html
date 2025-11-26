@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>制作部 発表者抽選ルーレット</title>
+    <title>制作部 抽選ルーレット</title>
     <style>
         :root {
             --bg: #f6f8fb;
@@ -195,14 +195,6 @@
             text-align: center;
         }
 
-        .result-wrapper {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-
         .result-display {
             font-size: 40px;
             font-weight: 700;
@@ -220,293 +212,12 @@
             transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
 
-        .result-label {
-            font-weight: 600;
-            color: var(--text);
-            white-space: nowrap;
-        }
-
         .result-display.roulette {
             animation: shimmer 1s linear infinite;
         }
 
         .result-display.pop {
             animation: pop 0.4s ease;
-        }
-
-        /* くす玉演出全体 */
-        .celebration {
-            position: relative;
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            margin-top: 8px;
-            min-height: 180px;
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .celebration.show {
-            opacity: 1;
-        }
-
-        .kusudama {
-            position: relative;
-            width: 240px;
-            height: 160px;
-        }
-
-        .kusudama .string {
-            position: absolute;
-            top: -18px;
-            left: 50%;
-            width: 2px;
-            height: 22px;
-            background: #9ca3af;
-            transform: translateX(-50%);
-        }
-
-        .kusudama .half {
-            position: absolute;
-            top: 4px;
-            width: 120px;
-            height: 100px;
-            background: linear-gradient(145deg, #bfdbfe, #3b82f6);
-            border: 2px solid #2563eb;
-            border-radius: 60px 60px 16px 16px;
-            box-shadow: 0 6px 18px rgba(37, 99, 235, 0.25);
-            transform-origin: top;
-        }
-
-        .kusudama .half.left {
-            left: 0;
-            border-top-right-radius: 4px;
-            transform-origin: top right;
-        }
-
-        .kusudama .half.right {
-            right: 0;
-            border-top-left-radius: 4px;
-            transform-origin: top left;
-        }
-
-        .celebration.show .half.left {
-            animation: openLeft 0.8s ease forwards;
-        }
-
-        .celebration.show .half.right {
-            animation: openRight 0.8s ease forwards;
-        }
-
-        @keyframes openLeft {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(-65deg) translateX(-8px); }
-        }
-
-        @keyframes openRight {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(65deg) translateX(8px); }
-        }
-
-        .kusudama .paper {
-            position: absolute;
-            top: 76px;
-            left: 50%;
-            transform: translateX(-50%) scale(0.9) translateY(-8px);
-            min-width: 160px;
-            padding: 12px 16px;
-            background: #fff;
-            border: 2px solid #f59e0b;
-            border-radius: 12px;
-            box-shadow: 0 10px 24px rgba(0,0,0,0.12);
-            color: #b45309;
-            font-weight: 700;
-            opacity: 0;
-            text-align: center;
-            letter-spacing: 0.5px;
-            white-space: nowrap;
-        }
-
-        .celebration.show .paper {
-            animation: paperDrop 0.9s ease forwards;
-            animation-delay: 0.25s;
-        }
-
-        @keyframes paperDrop {
-            0% { opacity: 0; transform: translateX(-50%) scale(0.9) translateY(-12px); }
-            60% { opacity: 1; transform: translateX(-50%) scale(1.03) translateY(6px); }
-            100% { opacity: 1; transform: translateX(-50%) scale(1) translateY(0); }
-        }
-
-        .confetti {
-            position: absolute;
-            inset: 0;
-            overflow: visible;
-            pointer-events: none;
-        }
-
-        .confetti span {
-            position: absolute;
-            top: 0;
-            left: 50%;
-            width: 10px;
-            height: 14px;
-            border-radius: 2px;
-            opacity: 0;
-            transform: translateX(calc(var(--offset, 0px))) rotate(var(--rot, 0deg));
-            background: var(--color, #fb7185);
-        }
-
-        .celebration.show .confetti span {
-            animation: confettiFall 1.6s ease-out forwards;
-            animation-delay: calc(var(--i, 0) * 0.08s + 0.25s);
-        }
-
-        /* ガチャ演出 */
-        .gacha-area {
-            display: flex;
-            justify-content: center;
-            align-items: flex-end;
-            gap: 16px;
-            margin-top: 8px;
-        }
-
-        .gacha-machine {
-            position: relative;
-            width: 180px;
-            height: 230px;
-            background: linear-gradient(180deg, #1e3a8a 0%, #1d4ed8 35%, #1d4ed8 100%);
-            border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(37, 99, 235, 0.25);
-            overflow: hidden;
-        }
-
-        .gacha-window {
-            position: absolute;
-            top: 14px;
-            left: 12px;
-            right: 12px;
-            height: 120px;
-            background: linear-gradient(180deg, #e0f2fe 0%, #ffffff 55%, #e0f2fe 100%);
-            border-radius: 12px;
-            border: 3px solid #bfdbfe;
-            overflow: hidden;
-        }
-
-        .gacha-track {
-            position: absolute;
-            inset: 0;
-            padding: 10px 16px;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-        }
-
-        .gacha-ball {
-            width: 46px;
-            height: 46px;
-            background: radial-gradient(circle at 30% 30%, #fff 0%, #fef3c7 25%, #f59e0b 70%);
-            border: 3px solid #d97706;
-            border-radius: 50%;
-            box-shadow: 0 6px 12px rgba(0,0,0,0.18);
-            transform: translateY(-120%);
-            opacity: 0;
-        }
-
-        .gacha-machine.spin .gacha-ball {
-            animation: ballDrop 1.6s cubic-bezier(0.25, 1.12, 0.48, 1) forwards;
-        }
-
-        .gacha-machine.drop .gacha-ball {
-            animation: ballBounce 0.8s ease-out forwards;
-        }
-
-        .gacha-handle {
-            position: absolute;
-            right: 12px;
-            bottom: 62px;
-            width: 20px;
-            height: 46px;
-            background: linear-gradient(180deg, #cbd5e1, #94a3b8);
-            border-radius: 10px;
-            transform-origin: top center;
-            box-shadow: inset 0 0 4px rgba(0,0,0,0.15);
-        }
-
-        .gacha-handle::after {
-            content: '';
-            position: absolute;
-            top: -14px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 26px;
-            height: 26px;
-            background: linear-gradient(145deg, #f87171, #ef4444);
-            border-radius: 50%;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-        }
-
-        .gacha-machine.spin .gacha-handle {
-            animation: leverPull 0.9s ease;
-        }
-
-        .gacha-slot {
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-            bottom: 18px;
-            width: 80px;
-            height: 30px;
-            background: linear-gradient(180deg, #0ea5e9, #0284c7);
-            border-radius: 16px;
-            box-shadow: inset 0 2px 6px rgba(255,255,255,0.4);
-        }
-
-        .gacha-slot::after {
-            content: '';
-            position: absolute;
-            left: 50%;
-            top: 10px;
-            transform: translateX(-50%);
-            width: 44px;
-            height: 10px;
-            background: #0f172a;
-            border-radius: 6px;
-            box-shadow: inset 0 2px 4px rgba(255,255,255,0.25);
-        }
-
-        .gacha-label {
-            font-size: 13px;
-            color: var(--muted);
-            margin: 0;
-            text-align: center;
-        }
-
-        @keyframes leverPull {
-            0% { transform: rotate(0deg); }
-            30% { transform: rotate(25deg); }
-            60% { transform: rotate(-10deg); }
-            100% { transform: rotate(0deg); }
-        }
-
-        @keyframes ballDrop {
-            0% { transform: translateY(-120%); opacity: 0; }
-            30% { opacity: 1; }
-            65% { transform: translateY(42%); }
-            100% { transform: translateY(58%); }
-        }
-
-        @keyframes ballBounce {
-            0% { transform: translateY(58%); }
-            40% { transform: translateY(52%); }
-            100% { transform: translateY(58%); }
-        }
-
-        @keyframes confettiFall {
-            0% { opacity: 1; transform: translate(calc(var(--offset, 0px)), -10px) rotate(var(--rot, 0deg)); }
-            70% { opacity: 1; }
-            100% { opacity: 0; transform: translate(calc(var(--offset, 0px)), 120px) rotate(calc(var(--rot, 0deg) + 160deg)); }
         }
 
         @keyframes shimmer {
@@ -580,7 +291,7 @@
 </head>
 <body>
     <header>
-        <h1>制作部 発表者抽選ルーレット</h1>
+        <h1>制作部 抽選ルーレット</h1>
         <p class="muted">メンバー管理と抽選履歴はブラウザに保存されます</p>
     </header>
 
@@ -603,45 +314,7 @@
                 <div class="lottery-card">
                     <div>
                         <h2 class="section-title" style="justify-content: center;">抽選エリア <span>ルーレット演出付き</span></h2>
-                        <div class="result-wrapper">
-                            <span class="result-label">今日の発表者は</span>
-                            <div id="result" class="result-display">---</div>
-                            <span class="result-label">さんです！よろしくお願いします！</span>
-                        </div>
-                        <div class="gacha-area" aria-hidden="true">
-                            <div id="gachaMachine" class="gacha-machine">
-                                <div class="gacha-window">
-                                    <div class="gacha-track">
-                                        <div class="gacha-ball"></div>
-                                    </div>
-                                </div>
-                                <div class="gacha-handle"></div>
-                                <div class="gacha-slot"></div>
-                            </div>
-                            <p class="gacha-label">ガチャ演出中...</p>
-                        </div>
-                        <div id="celebration" class="celebration" aria-hidden="true">
-                            <div class="kusudama">
-                                <div class="string"></div>
-                                <div class="half left"></div>
-                                <div class="half right"></div>
-                                <div id="celebrationPaper" class="paper">おめでとう！</div>
-                                <div class="confetti">
-                                    <span style="--i:0; --offset:-120px; --color:#fb7185; --rot:-12deg;"></span>
-                                    <span style="--i:1; --offset:-80px; --color:#34d399; --rot:18deg;"></span>
-                                    <span style="--i:2; --offset:-40px; --color:#facc15; --rot:-24deg;"></span>
-                                    <span style="--i:3; --offset:-10px; --color:#60a5fa; --rot:12deg;"></span>
-                                    <span style="--i:4; --offset:20px; --color:#f472b6; --rot:-18deg;"></span>
-                                    <span style="--i:5; --offset:50px; --color:#22d3ee; --rot:24deg;"></span>
-                                    <span style="--i:6; --offset:80px; --color:#a78bfa; --rot:-16deg;"></span>
-                                    <span style="--i:7; --offset:110px; --color:#fb923c; --rot:14deg;"></span>
-                                    <span style="--i:8; --offset:-100px; --color:#f97316; --rot:20deg;"></span>
-                                    <span style="--i:9; --offset:0px; --color:#10b981; --rot:-20deg;"></span>
-                                    <span style="--i:10; --offset:100px; --color:#38bdf8; --rot:16deg;"></span>
-                                    <span style="--i:11; --offset:140px; --color:#facc15; --rot:-14deg;"></span>
-                                </div>
-                            </div>
-                        </div>
+                        <div id="result" class="result-display">---</div>
                         <p class="muted" id="memberCountNote">現在の登録人数: 0人</p>
                     </div>
                     <button id="startLottery" class="btn-primary" style="width: 200px;">抽選スタート</button>
@@ -790,11 +463,9 @@
 
             isSpinning = true;
             toggleStartButton(true);
-            triggerGachaAnimation();
             runRouletteAnimation(() => {
                 const winner = pickRandomMember();
                 displayResult(winner);
-                triggerKusudama(winner);
                 appendHistory(winner);
                 toggleStartButton(false);
                 isSpinning = false;
@@ -832,34 +503,6 @@
             const result = document.getElementById('result');
             result.textContent = name;
             if (!isRoulette) triggerPop(result);
-        }
-
-        // ガチャ演出を再生する（ハンドル→カプセル落下の流れ）
-        function triggerGachaAnimation() {
-            const machine = document.getElementById('gachaMachine');
-            if (!machine) return;
-
-            machine.classList.remove('spin', 'drop');
-            // リフローでアニメーションをリセット
-            void machine.offsetWidth;
-            machine.classList.add('spin');
-            // ハンドルの後にカプセルが落ちる演出
-            setTimeout(() => {
-                machine.classList.add('drop');
-            }, 700);
-        }
-
-        // くす玉演出を再生する
-        function triggerKusudama(name) {
-            const wrap = document.getElementById('celebration');
-            const paper = document.getElementById('celebrationPaper');
-            if (!wrap || !paper) return;
-
-            paper.textContent = `${name}さん おめでとう！`;
-            wrap.classList.remove('show');
-            // リフローでアニメーションをリセット
-            void wrap.offsetWidth;
-            wrap.classList.add('show');
         }
 
         // 抽選結果が決まった際のポップ演出
