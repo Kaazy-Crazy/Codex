@@ -172,6 +172,14 @@
             border: 1px solid var(--border);
             border-radius: 8px;
             padding: 10px 12px;
+            gap: 12px;
+        }
+
+        .member-info {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            min-width: 0;
         }
 
         .member-name {
@@ -181,9 +189,26 @@
             white-space: nowrap;
         }
 
+        .weight-control {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .weight-input {
+            width: 80px;
+            padding: 6px 8px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 13px;
+        }
+
         .member-actions {
             display: flex;
             gap: 6px;
+            flex-shrink: 0;
         }
 
         .lottery-card {
@@ -351,7 +376,7 @@
             border-radius: 18px;
             padding: 18px 16px 28px;
             box-shadow: 0 16px 36px rgba(220, 38, 38, 0.25);
-            overflow: hidden;
+            overflow: visible;
         }
 
         .slot-machine::before {
@@ -482,6 +507,7 @@
             border-radius: 12px;
             transform-origin: top center;
             box-shadow: inset 0 0 6px rgba(0,0,0,0.2), 0 4px 8px rgba(0,0,0,0.16);
+            z-index: 5;
         }
 
         .slot-handle::after {
@@ -662,8 +688,9 @@
             </div>
             <div id="tab-members" class="tab-panel" role="tabpanel">
                 <h2 class="section-title">メンバー一覧 <span>追加・編集・削除</span></h2>
-                <div class="input-row">
+                <div class="input-row" style="flex-wrap: wrap;">
                     <input type="text" id="memberInput" placeholder="メンバー名を入力" autocomplete="off">
+                    <input type="number" id="weightInput" class="weight-input" placeholder="出やすさ (例: 100)" min="1" value="100" title="出現率の調整 (100が通常)">
                     <button id="addMember" class="btn-primary">追加</button>
                 </div>
                 <ul id="memberList" class="member-list"></ul>
@@ -689,10 +716,15 @@
             history: 'lottery_history'
         };
 
+        const DEFAULT_WEIGHT = 100;
+
         // 状態を保持する配列
+        // { name: string, weight: number } 形式で保持し、当選後も削除せず繰り返し抽選対象にする
         let members = [];
         let history = [];
         let isSpinning = false;
+        let balloonPopTimer = null;
+        let balloonHideTimer = null;
 
         // ページ読み込み時の初期化
             document.addEventListener('DOMContentLoaded', () => {
@@ -739,7 +771,21 @@
         function loadData() {
             const storedMembers = localStorage.getItem(STORAGE_KEYS.members);
             const storedHistory = localStorage.getItem(STORAGE_KEYS.history);
-            members = storedMembers ? JSON.parse(storedMembers) : [];
+            const parsedMembers = storedMembers ? JSON.parse(storedMembers) : [];
+
+            // 旧データ(文字列のみ)も取り込めるように変換する
+            members = Array.isArray(parsedMembers)
+                ? parsedMembers
+                    .map((item) => {
+                        if (typeof item === 'string') return { name: item, weight: DEFAULT_WEIGHT };
+                        if (item && typeof item.name === 'string') {
+                            return { name: item.name, weight: sanitizeWeight(item.weight ?? DEFAULT_WEIGHT) };
+                        }
+                        return null;
+                    })
+                    .filter(Boolean)
+                : [];
+
             history = storedHistory ? JSON.parse(storedHistory) : [];
         }
 
@@ -753,13 +799,23 @@
             localStorage.setItem(STORAGE_KEYS.history, JSON.stringify(history));
         }
 
-        // メンバーを追加する
+        // 出現率の数値をサニタイズする
+        function sanitizeWeight(value) {
+            const parsed = Number(value);
+            if (!Number.isFinite(parsed) || parsed <= 0) return DEFAULT_WEIGHT;
+            return Math.min(9999, Math.max(1, Math.round(parsed)));
+        }
+
+        // メンバーを追加する（初期の出現率は入力枠またはデフォルト値）
         function addMember() {
             const input = document.getElementById('memberInput');
+            const weightInput = document.getElementById('weightInput');
             const name = input.value.trim();
             if (!name) return;
-            members.push(name);
+            const weightValue = sanitizeWeight(weightInput?.value ?? DEFAULT_WEIGHT);
+            members.push({ name, weight: weightValue });
             input.value = '';
+            if (weightInput) weightInput.value = DEFAULT_WEIGHT;
             saveMembers();
             renderMembers();
         }
@@ -774,11 +830,18 @@
         // メンバー名を編集する
         function editMember(index) {
             const current = members[index];
-            const next = prompt('名前を編集', current);
+            const next = prompt('名前を編集', current?.name ?? '');
             if (next === null) return; // キャンセル
             const trimmed = next.trim();
             if (!trimmed) return;
-            members[index] = trimmed;
+            members[index].name = trimmed;
+            saveMembers();
+            renderMembers();
+        }
+
+        // メンバーの出現率を更新する
+        function updateWeight(index, value) {
+            members[index].weight = sanitizeWeight(value);
             saveMembers();
             renderMembers();
         }
@@ -787,18 +850,26 @@
         function renderMembers() {
             const list = document.getElementById('memberList');
             list.innerHTML = '';
-            members.forEach((name, index) => {
+            members.forEach((member, index) => {
                 const li = document.createElement('li');
                 li.className = 'member-item';
                 li.innerHTML = `
-                    <span class="member-name">${escapeHtml(name)}</span>
+                    <div class="member-info">
+                        <span class="member-name">${escapeHtml(member.name)}</span>
+                        <label class="weight-control">出現率
+                            <input type="number" class="weight-input" min="1" value="${member.weight}" aria-label="${escapeHtml(member.name)}の出現率">
+                            % (100で通常、半分なら50)
+                        </label>
+                    </div>
                     <div class="member-actions">
                         <button class="btn-ghost" aria-label="編集" title="編集">編集</button>
                         <button class="btn-danger" aria-label="削除" title="削除">削除</button>
                     </div>
                 `;
 
+                const weightInput = li.querySelector('.weight-input');
                 const [editBtn, deleteBtn] = li.querySelectorAll('button');
+                weightInput.addEventListener('change', () => updateWeight(index, weightInput.value));
                 editBtn.addEventListener('click', () => editMember(index));
                 deleteBtn.addEventListener('click', () => removeMember(index));
                 list.appendChild(li);
@@ -829,30 +900,60 @@
             });
         }
 
-        // 抽選ロジック：メンバーからランダムに1人を取得する
+        // 抽選ロジック：重み付きでランダムに1人を取得する（当選後もリストから除外しない）
         // 将来的に「全員出るまで被りなし」にしたい場合は、この関数内の選択ロジックを差し替えるだけで対応可能
         function pickRandomMember() {
-            const index = Math.floor(Math.random() * members.length);
-            return members[index];
+            const weightedMembers = members.filter((m) => m.weight > 0);
+            const pool = weightedMembers.length ? weightedMembers : members;
+            const total = pool.reduce((sum, m) => sum + Math.max(0, m.weight), 0);
+
+            if (total <= 0) {
+                const index = Math.floor(Math.random() * pool.length);
+                return pool[index].name;
+            }
+
+            let roll = Math.random() * total;
+            for (const member of pool) {
+                roll -= Math.max(0, member.weight);
+                if (roll < 0) return member.name;
+            }
+            return pool[pool.length - 1].name;
         }
 
         // ルーレット演出を実行する（名前を高速に切り替えたあと結果を返す）
         function runRouletteAnimation(onComplete) {
             const result = document.getElementById('result');
-            const spinDuration = 2000; // ミリ秒
-            const intervalMs = 100;
+            const spinDuration = 4000; // ミリ秒（従来の2倍）
+            const startTime = performance.now();
             result.classList.add('roulette');
 
-            const spinTimer = setInterval(() => {
-                const candidate = pickRandomMember();
-                displayResult(candidate, true);
-            }, intervalMs);
+            // 名前の切り替え間隔を少しずつ長くしていくことで、確定に向けて期待感を演出
+            const tick = (delay) => {
+                setTimeout(() => {
+                    const elapsed = performance.now() - startTime;
+                    const remaining = spinDuration - elapsed;
+                    const candidate = pickRandomMember();
+                    displayResult(candidate, true);
 
-            setTimeout(() => {
-                clearInterval(spinTimer);
-                result.classList.remove('roulette');
-                if (typeof onComplete === 'function') onComplete();
-            }, spinDuration);
+                    if (remaining <= 0) {
+                        result.classList.remove('roulette');
+                        if (typeof onComplete === 'function') onComplete();
+                        return;
+                    }
+
+                    // 進行度に応じて徐々に間隔を長くする（ease-out）
+                    const progress = Math.min(1, elapsed / spinDuration);
+                    const nextDelay = 80 + easeOutCubic(progress) * 320; // 初期は高速、終盤はゆっくり
+                    tick(Math.min(remaining, nextDelay));
+                }, delay);
+            };
+
+            tick(80);
+        }
+
+        // ゆっくり終わるイージング（緩やかに減速）
+        function easeOutCubic(t) {
+            return 1 - Math.pow(1 - t, 3);
         }
 
         // 抽選結果を画面に表示する
@@ -880,8 +981,13 @@
             const wrap = document.getElementById('balloonWrap');
             if (!wrap) return;
 
+            // 既存のタイマーをクリアして、前回の終了待ちでちらつかないようにする
+            clearTimeout(balloonPopTimer);
+            clearTimeout(balloonHideTimer);
+
             const pieces = wrap.querySelectorAll('.burst-piece');
             wrap.classList.remove('show', 'pop');
+            wrap.style.visibility = 'visible';
             pieces.forEach((piece) => {
                 piece.style.animation = 'none';
                 // リフローを強制して再生をリセット
@@ -891,8 +997,11 @@
 
             void wrap.offsetWidth;
             wrap.classList.add('show');
-            setTimeout(() => wrap.classList.add('pop'), 120);
-            setTimeout(() => wrap.classList.remove('show', 'pop'), 1400);
+            balloonPopTimer = setTimeout(() => wrap.classList.add('pop'), 120);
+            balloonHideTimer = setTimeout(() => {
+                wrap.classList.remove('show', 'pop');
+                wrap.style.visibility = 'hidden';
+            }, 1400);
         }
 
         // 抽選結果が決まった際のポップ演出
