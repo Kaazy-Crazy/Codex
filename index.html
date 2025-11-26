@@ -785,6 +785,9 @@
     </section>
 
     <script>
+        // 画面とブラウザタブに表示するタイトル
+        const APP_TITLE = '制作部 発表者抽選ルーレット';
+
         // LocalStorageに保存するキー名
         const STORAGE_KEYS = {
             members: 'lottery_members',
@@ -798,6 +801,9 @@
 
         // ページ読み込み時の初期化
         document.addEventListener('DOMContentLoaded', () => {
+            document.title = APP_TITLE;
+            const headerTitle = document.querySelector('header h1');
+            if (headerTitle) headerTitle.textContent = APP_TITLE;
             loadData();
             renderMembers();
             renderHistory();
