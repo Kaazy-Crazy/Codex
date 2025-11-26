@@ -234,7 +234,7 @@
             animation: pop 0.4s ease;
         }
 
-        /* バルーン＆くす玉演出全体 */
+        /* バルーン演出 */
         .balloon-area {
             display: flex;
             justify-content: center;
@@ -334,158 +334,6 @@
         .burst-piece.p2 { --tx: 70px; --ty: -70px; --rot: 30deg; }
         .burst-piece.p3 { --tx: -30px; --ty: -90px; --rot: -10deg; }
         .burst-piece.p4 { --tx: 40px; --ty: -100px; --rot: 18deg; }
-
-        .celebration {
-            position: relative;
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            margin-top: 8px;
-            min-height: 180px;
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .celebration.show {
-            opacity: 1;
-        }
-
-        .kusudama {
-            position: relative;
-            width: 240px;
-            height: 160px;
-        }
-
-        .kusudama .string {
-            position: absolute;
-            top: -18px;
-            left: 50%;
-            width: 2px;
-            height: 22px;
-            background: #9ca3af;
-            transform: translateX(-50%);
-        }
-
-        .kusudama .half {
-            position: absolute;
-            top: 4px;
-            width: 120px;
-            height: 100px;
-            background: linear-gradient(145deg, #bfdbfe, #3b82f6);
-            border: 2px solid #2563eb;
-            border-radius: 60px 60px 16px 16px;
-            box-shadow: 0 6px 18px rgba(37, 99, 235, 0.25);
-            transform-origin: top;
-        }
-
-        .kusudama .half.left {
-            left: 0;
-            border-top-right-radius: 4px;
-            transform-origin: top right;
-        }
-
-        .kusudama .half.right {
-            right: 0;
-            border-top-left-radius: 4px;
-            transform-origin: top left;
-        }
-
-        .celebration.show .half.left {
-            animation: openLeft 0.8s ease forwards;
-        }
-
-        .celebration.show .half.right {
-            animation: openRight 0.8s ease forwards;
-        }
-
-        @keyframes openLeft {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(-65deg) translateX(-8px); }
-        }
-
-        @keyframes openRight {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(65deg) translateX(8px); }
-        }
-
-        .kusudama .paper {
-            position: absolute;
-            top: 76px;
-            left: 50%;
-            transform: translateX(-50%) scale(0.9) translateY(-8px);
-            min-width: 160px;
-            padding: 12px 16px;
-            background: #fff;
-            border: 2px solid #f59e0b;
-            border-radius: 12px;
-            box-shadow: 0 10px 24px rgba(0,0,0,0.12);
-            color: #b45309;
-            font-weight: 700;
-            opacity: 0;
-            text-align: center;
-            letter-spacing: 0.5px;
-            white-space: nowrap;
-        }
-
-        .celebration.show .paper {
-            animation: paperDrop 0.9s ease forwards;
-            animation-delay: 0.25s;
-        }
-
-        @keyframes paperDrop {
-            0% { opacity: 0; transform: translateX(-50%) scale(0.9) translateY(-12px); }
-            60% { opacity: 1; transform: translateX(-50%) scale(1.03) translateY(6px); }
-            100% { opacity: 1; transform: translateX(-50%) scale(1) translateY(0); }
-        }
-
-        .confetti {
-            position: absolute;
-            inset: 0;
-            overflow: visible;
-            pointer-events: none;
-        }
-
-        .confetti span {
-            position: absolute;
-            top: 0;
-            left: 50%;
-            width: 10px;
-            height: 14px;
-            border-radius: 2px;
-            opacity: 0;
-            transform: translateX(calc(var(--offset, 0px))) rotate(var(--rot, 0deg));
-            background: var(--color, #fb7185);
-        }
-
-        .celebration.show .confetti span {
-            animation: confettiFall 1.6s ease-out forwards;
-            animation-delay: calc(var(--i, 0) * 0.08s + 0.25s);
-        }
-
-        .confetti-burst {
-            position: absolute;
-            inset: 0;
-            overflow: visible;
-            pointer-events: none;
-        }
-
-        .confetti-burst .piece {
-            position: absolute;
-            top: 12px;
-            left: 50%;
-            width: 12px;
-            height: 16px;
-            border-radius: 3px;
-            opacity: 0;
-            transform: translate(-50%, 0) scale(0.9) rotate(0deg);
-            background: var(--color, #f59e0b);
-        }
-
-        .confetti-burst.explode .piece {
-            animation: confettiBurst 1.35s ease-out forwards;
-            animation-delay: var(--delay, 0s);
-        }
 
         /* ガチャ演出 */
         .gacha-area {
@@ -627,19 +475,6 @@
             100% { transform: translateY(58%); }
         }
 
-        @keyframes confettiFall {
-            0% { opacity: 1; transform: translate(calc(var(--offset, 0px)), -10px) rotate(var(--rot, 0deg)); }
-            70% { opacity: 1; }
-            100% { opacity: 0; transform: translate(calc(var(--offset, 0px)), 120px) rotate(calc(var(--rot, 0deg) + 160deg)); }
-        }
-
-        @keyframes confettiBurst {
-            0% { opacity: 0; transform: translate(-50%, 0) scale(0.9) rotate(0deg); }
-            12% { opacity: 1; }
-            55% { opacity: 1; transform: translate(calc(-50% + var(--dx, 0px)), var(--dy, -120px)) rotate(var(--rot, 80deg)); }
-            100% { opacity: 0; transform: translate(calc(-50% + var(--dx, 0px)), 180px) rotate(calc(var(--rot, 80deg) + 200deg)); }
-        }
-
         @keyframes shimmer {
             0% { background-position: 0 0; }
             100% { background-position: 200% 0; }
@@ -778,29 +613,6 @@
                             </div>
                             <p class="gacha-label">ガチャ演出中...</p>
                         </div>
-                        <div id="celebration" class="celebration" aria-hidden="true">
-                            <div class="kusudama">
-                                <div class="string"></div>
-                                <div class="half left"></div>
-                                <div class="half right"></div>
-                                <div id="celebrationPaper" class="paper">おめでとう！</div>
-                                <div class="confetti">
-                                    <span style="--i:0; --offset:-120px; --color:#fb7185; --rot:-12deg;"></span>
-                                    <span style="--i:1; --offset:-80px; --color:#34d399; --rot:18deg;"></span>
-                                    <span style="--i:2; --offset:-40px; --color:#facc15; --rot:-24deg;"></span>
-                                    <span style="--i:3; --offset:-10px; --color:#60a5fa; --rot:12deg;"></span>
-                                    <span style="--i:4; --offset:20px; --color:#f472b6; --rot:-18deg;"></span>
-                                    <span style="--i:5; --offset:50px; --color:#22d3ee; --rot:24deg;"></span>
-                                    <span style="--i:6; --offset:80px; --color:#a78bfa; --rot:-16deg;"></span>
-                                    <span style="--i:7; --offset:110px; --color:#fb923c; --rot:14deg;"></span>
-                                    <span style="--i:8; --offset:-100px; --color:#f97316; --rot:20deg;"></span>
-                                    <span style="--i:9; --offset:0px; --color:#10b981; --rot:-20deg;"></span>
-                                    <span style="--i:10; --offset:100px; --color:#38bdf8; --rot:16deg;"></span>
-                                    <span style="--i:11; --offset:140px; --color:#facc15; --rot:-14deg;"></span>
-                                </div>
-                            </div>
-                            <div id="confettiBurst" class="confetti-burst" aria-hidden="true"></div>
-                        </div>
                         <p class="muted" id="memberCountNote">現在の登録人数: 0人</p>
                     </div>
                     <button id="startLottery" class="btn-primary" style="width: 200px;">抽選スタート</button>
@@ -832,17 +644,16 @@
         let isSpinning = false;
 
         // ページ読み込み時の初期化
-        document.addEventListener('DOMContentLoaded', () => {
-            document.title = APP_TITLE;
-            const headerTitle = document.querySelector('header h1');
-            if (headerTitle) headerTitle.textContent = APP_TITLE;
-            loadData();
-            renderMembers();
-            renderHistory();
-            setupConfettiBurst();
-            setupTabs();
-            bindEvents();
-        });
+            document.addEventListener('DOMContentLoaded', () => {
+                document.title = APP_TITLE;
+                const headerTitle = document.querySelector('header h1');
+                if (headerTitle) headerTitle.textContent = APP_TITLE;
+                loadData();
+                renderMembers();
+                renderHistory();
+                setupTabs();
+                bindEvents();
+            });
 
         // イベントハンドラの登録
         function bindEvents() {
@@ -852,22 +663,6 @@
             });
             document.getElementById('startLottery').addEventListener('click', handleLottery);
             document.getElementById('clearHistory').addEventListener('click', clearHistory);
-        }
-
-        // 紙吹雪バースト用のピースを生成する
-        function setupConfettiBurst() {
-            const burst = document.getElementById('confettiBurst');
-            if (!burst) return;
-
-            const colors = ['#f87171', '#fb923c', '#facc15', '#34d399', '#60a5fa', '#a78bfa', '#f472b6'];
-            const pieceCount = 28;
-            burst.innerHTML = '';
-            for (let i = 0; i < pieceCount; i++) {
-                const span = document.createElement('span');
-                span.className = 'piece';
-                span.style.setProperty('--color', colors[i % colors.length]);
-                burst.appendChild(span);
-            }
         }
 
         // タブ切り替えのセットアップ
@@ -976,7 +771,6 @@
             runRouletteAnimation(() => {
                 const winner = pickRandomMember();
                 displayResult(winner);
-                triggerKusudama(winner);
                 triggerBalloonBurst();
                 appendHistory(winner);
                 toggleStartButton(false);
@@ -1030,45 +824,6 @@
             setTimeout(() => {
                 machine.classList.add('drop');
             }, 700);
-        }
-
-        // くす玉演出を再生する
-        function triggerKusudama(name) {
-            const wrap = document.getElementById('celebration');
-            const paper = document.getElementById('celebrationPaper');
-            if (!wrap || !paper) return;
-
-            paper.textContent = `${name}さん おめでとう！`;
-            wrap.classList.remove('show');
-            // リフローでアニメーションをリセット
-            void wrap.offsetWidth;
-            wrap.classList.add('show');
-            playConfettiBurst();
-        }
-
-        // くす玉に合わせて紙吹雪のバーストを生成・再生する
-        function playConfettiBurst() {
-            const burst = document.getElementById('confettiBurst');
-            if (!burst) return;
-
-            const pieces = burst.querySelectorAll('.piece');
-            pieces.forEach((piece, index) => {
-                const dx = (Math.random() * 240 - 120).toFixed(0);
-                const dy = (Math.random() * -140 - 80).toFixed(0);
-                const rot = (Math.random() * 160 - 80).toFixed(0);
-                const delay = (index * 0.02).toFixed(2);
-                piece.style.setProperty('--dx', `${dx}px`);
-                piece.style.setProperty('--dy', `${dy}px`);
-                piece.style.setProperty('--rot', `${rot}deg`);
-                piece.style.setProperty('--delay', `${delay}s`);
-                piece.style.animation = 'none';
-                void piece.offsetWidth;
-                piece.style.animation = '';
-            });
-
-            burst.classList.remove('explode');
-            void burst.offsetWidth;
-            burst.classList.add('explode');
         }
 
         // 抽選確定時のバルーン破裂演出
