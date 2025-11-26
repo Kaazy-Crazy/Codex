@@ -350,6 +350,10 @@
             animation: balloonPop 0.65s ease forwards;
         }
 
+        .balloon-wrap.pop .balloon-string {
+            animation: stringHide 0.5s ease forwards;
+        }
+
         .balloon-wrap.pop .burst-piece {
             animation: burstFly 0.8s ease-out forwards;
             animation-delay: 0.05s;
@@ -570,6 +574,11 @@
         @keyframes burstFly {
             0% { opacity: 1; transform: translate(-50%, -10%) scale(0.8) rotate(0deg); }
             100% { opacity: 0; transform: translate(calc(var(--tx, 0px)), calc(var(--ty, -80px))) scale(0.5) rotate(var(--rot, 40deg)); }
+        }
+
+        @keyframes stringHide {
+            0% { opacity: 1; transform: translateX(-50%) scaleY(1); }
+            100% { opacity: 0; transform: translateX(-50%) translateY(-6px) scaleY(0.5); }
         }
 
         .history {
@@ -927,7 +936,7 @@
             const startTime = performance.now();
             result.classList.add('roulette');
 
-            // 名前の切り替え間隔を少しずつ長くしていくことで、確定に向けて期待感を演出
+            // 高速70%→中速25%→低速5%のフェーズを設け、終盤に向けて切り替え間隔を伸ばす
             const tick = (delay) => {
                 setTimeout(() => {
                     const elapsed = performance.now() - startTime;
@@ -941,19 +950,42 @@
                         return;
                     }
 
-                    // 進行度に応じて徐々に間隔を長くする（ease-out）
                     const progress = Math.min(1, elapsed / spinDuration);
-                    const nextDelay = 80 + easeOutCubic(progress) * 320; // 初期は高速、終盤はゆっくり
+                    const nextDelay = getStageDelay(progress);
                     tick(Math.min(remaining, nextDelay));
                 }, delay);
             };
 
-            tick(80);
+            tick(getStageDelay(0));
         }
 
-        // ゆっくり終わるイージング（緩やかに減速）
-        function easeOutCubic(t) {
-            return 1 - Math.pow(1 - t, 3);
+        // フェーズごとの速度を返す（高速70%→中速25%→低速5%）
+        function getStageDelay(progress) {
+            const fastEnd = 0.7; // 高速フェーズ終了割合
+            const midEnd = 0.95; // 中速フェーズ終了割合
+
+            if (progress < fastEnd) {
+                const t = easeOutQuad(progress / fastEnd);
+                return lerp(60, 140, t);
+            }
+
+            if (progress < midEnd) {
+                const t = easeOutQuad((progress - fastEnd) / (midEnd - fastEnd));
+                return lerp(150, 260, t);
+            }
+
+            const t = easeOutQuad((progress - midEnd) / (1 - midEnd));
+            return lerp(280, 450, t);
+        }
+
+        // 0-1の値を線形補間する
+        function lerp(start, end, t) {
+            return start + (end - start) * t;
+        }
+
+        // ゆるやかな減速カーブ
+        function easeOutQuad(t) {
+            return 1 - (1 - t) * (1 - t);
         }
 
         // 抽選結果を画面に表示する
@@ -986,6 +1018,7 @@
             clearTimeout(balloonHideTimer);
 
             const pieces = wrap.querySelectorAll('.burst-piece');
+            const stringEl = wrap.querySelector('.balloon-string');
             wrap.classList.remove('show', 'pop');
             wrap.style.visibility = 'visible';
             pieces.forEach((piece) => {
@@ -994,6 +1027,11 @@
                 void piece.offsetWidth;
                 piece.style.animation = '';
             });
+            if (stringEl) {
+                stringEl.style.animation = 'none';
+                void stringEl.offsetWidth;
+                stringEl.style.animation = '';
+            }
 
             void wrap.offsetWidth;
             wrap.classList.add('show');
