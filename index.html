@@ -641,15 +641,15 @@
 </head>
 <body>
     <header>
-        <h1>制作部 発表者抽選ルーレット</h1>
-        <p class="muted">メンバー管理と抽選履歴はブラウザに保存されます</p>
+        <h1>トークテーマ抽選スロット</h1>
+        <p class="muted">テーマ管理と抽選履歴はブラウザに保存されます</p>
     </header>
 
     <main class="main">
         <section class="card tabs-card">
             <div class="tabs" role="tablist">
                 <button class="tab-button active" data-target="tab-lottery" role="tab" aria-selected="true">抽選</button>
-                <button class="tab-button" data-target="tab-members" role="tab" aria-selected="false">メンバー管理</button>
+                <button class="tab-button" data-target="tab-members" role="tab" aria-selected="false">テーマ管理</button>
             </div>
             <div id="tab-lottery" class="tab-panel active" role="tabpanel">
                 <div class="lottery-card">
@@ -657,7 +657,7 @@
                         <div class="slot-area" aria-hidden="false">
                             <div id="slotMachine" class="slot-machine">
                                 <div class="slot-top">
-                                    <div class="slot-title">PRESENTATION SLOT</div>
+                                    <div class="slot-title">TALK THEME SLOT</div>
                                     <div class="slot-lights" aria-hidden="true">
                                         <span class="slot-light"></span>
                                         <span class="slot-light"></span>
@@ -669,9 +669,9 @@
                                 <div class="slot-display">
                                     <div class="slot-screen">
                                         <div class="result-wrapper">
-                                            <span class="result-label">今日の発表者は</span>
+                                            <span class="result-label">今日のトークテーマは</span>
                                             <div id="result" class="result-display">---</div>
-                                            <span class="result-label">さんです！よろしくお願いします！</span>
+                                            <span class="result-label">です！</span>
                                         </div>
                                     </div>
                                     <div class="slot-reel-overlay" aria-hidden="true"></div>
@@ -690,20 +690,20 @@
                                 <div class="burst-piece p4"></div>
                             </div>
                         </div>
-                        <p class="muted" id="memberCountNote">現在の登録人数: 0人</p>
+                        <p class="muted" id="memberCountNote">現在の登録テーマ数: 0件</p>
                     </div>
                     <button id="startLottery" class="btn-primary" style="width: 200px;">抽選スタート</button>
                 </div>
             </div>
             <div id="tab-members" class="tab-panel" role="tabpanel">
-                <h2 class="section-title">メンバー一覧 <span>追加・編集・削除</span></h2>
+                <h2 class="section-title">トークテーマ一覧 <span>追加・編集・削除</span></h2>
                 <div class="input-row" style="flex-wrap: wrap;">
-                    <input type="text" id="memberInput" placeholder="メンバー名を入力" autocomplete="off">
+                    <input type="text" id="memberInput" placeholder="トークテーマを入力" autocomplete="off">
                     <input type="number" id="weightInput" class="weight-input" placeholder="出やすさ (例: 100)" min="1" value="100" title="出現率の調整 (100が通常)">
                     <button id="addMember" class="btn-primary">追加</button>
                 </div>
                 <ul id="memberList" class="member-list"></ul>
-                <p class="muted" id="memberCount">登録人数: 0人</p>
+                <p class="muted" id="memberCount">登録テーマ数: 0件</p>
             </div>
         </section>
 
@@ -717,12 +717,12 @@
 
     <script>
         // 画面とブラウザタブに表示するタイトル
-        const APP_TITLE = '制作部 発表者抽選ルーレット';
+        const APP_TITLE = 'トークテーマ抽選スロット';
 
         // LocalStorageに保存するキー名
         const STORAGE_KEYS = {
-            members: 'lottery_members',
-            history: 'lottery_history'
+            members: 'talkslot_topics',
+            history: 'talkslot_history'
         };
 
         const DEFAULT_WEIGHT = 100;
@@ -883,15 +883,15 @@
                 deleteBtn.addEventListener('click', () => removeMember(index));
                 list.appendChild(li);
             });
-            document.getElementById('memberCount').textContent = `登録人数: ${members.length}人`;
+            document.getElementById('memberCount').textContent = `登録テーマ数: ${members.length}件`;
             const memberCountNote = document.getElementById('memberCountNote');
-            if (memberCountNote) memberCountNote.textContent = `現在の登録人数: ${members.length}人`;
+            if (memberCountNote) memberCountNote.textContent = `現在の登録テーマ数: ${members.length}件`;
         }
 
         // 抽選スタートボタン押下時の処理
         function handleLottery() {
             if (members.length === 0) {
-                alert('メンバーが登録されていません');
+                alert('トークテーマが登録されていません');
                 return;
             }
             if (isSpinning) return; // 二重起動を防ぐ
@@ -1088,7 +1088,7 @@
         // 履歴のみをクリアする
         function clearHistory() {
             if (!history.length) return;
-            if (!confirm('履歴を削除しますか？メンバーは残ります。')) return;
+            if (!confirm('履歴を削除しますか？登録したテーマは残ります。')) return;
             history = [];
             saveHistory();
             renderHistory();
