@@ -463,6 +463,30 @@
             animation-delay: calc(var(--i, 0) * 0.08s + 0.25s);
         }
 
+        .confetti-burst {
+            position: absolute;
+            inset: 0;
+            overflow: visible;
+            pointer-events: none;
+        }
+
+        .confetti-burst .piece {
+            position: absolute;
+            top: 12px;
+            left: 50%;
+            width: 12px;
+            height: 16px;
+            border-radius: 3px;
+            opacity: 0;
+            transform: translate(-50%, 0) scale(0.9) rotate(0deg);
+            background: var(--color, #f59e0b);
+        }
+
+        .confetti-burst.explode .piece {
+            animation: confettiBurst 1.35s ease-out forwards;
+            animation-delay: var(--delay, 0s);
+        }
+
         /* ガチャ演出 */
         .gacha-area {
             display: flex;
@@ -607,6 +631,13 @@
             0% { opacity: 1; transform: translate(calc(var(--offset, 0px)), -10px) rotate(var(--rot, 0deg)); }
             70% { opacity: 1; }
             100% { opacity: 0; transform: translate(calc(var(--offset, 0px)), 120px) rotate(calc(var(--rot, 0deg) + 160deg)); }
+        }
+
+        @keyframes confettiBurst {
+            0% { opacity: 0; transform: translate(-50%, 0) scale(0.9) rotate(0deg); }
+            12% { opacity: 1; }
+            55% { opacity: 1; transform: translate(calc(-50% + var(--dx, 0px)), var(--dy, -120px)) rotate(var(--rot, 80deg)); }
+            100% { opacity: 0; transform: translate(calc(-50% + var(--dx, 0px)), 180px) rotate(calc(var(--rot, 80deg) + 200deg)); }
         }
 
         @keyframes shimmer {
@@ -768,6 +799,7 @@
                                     <span style="--i:11; --offset:140px; --color:#facc15; --rot:-14deg;"></span>
                                 </div>
                             </div>
+                            <div id="confettiBurst" class="confetti-burst" aria-hidden="true"></div>
                         </div>
                         <p class="muted" id="memberCountNote">現在の登録人数: 0人</p>
                     </div>
@@ -807,6 +839,7 @@
             loadData();
             renderMembers();
             renderHistory();
+            setupConfettiBurst();
             setupTabs();
             bindEvents();
         });
@@ -819,6 +852,22 @@
             });
             document.getElementById('startLottery').addEventListener('click', handleLottery);
             document.getElementById('clearHistory').addEventListener('click', clearHistory);
+        }
+
+        // 紙吹雪バースト用のピースを生成する
+        function setupConfettiBurst() {
+            const burst = document.getElementById('confettiBurst');
+            if (!burst) return;
+
+            const colors = ['#f87171', '#fb923c', '#facc15', '#34d399', '#60a5fa', '#a78bfa', '#f472b6'];
+            const pieceCount = 28;
+            burst.innerHTML = '';
+            for (let i = 0; i < pieceCount; i++) {
+                const span = document.createElement('span');
+                span.className = 'piece';
+                span.style.setProperty('--color', colors[i % colors.length]);
+                burst.appendChild(span);
+            }
         }
 
         // タブ切り替えのセットアップ
@@ -994,6 +1043,32 @@
             // リフローでアニメーションをリセット
             void wrap.offsetWidth;
             wrap.classList.add('show');
+            playConfettiBurst();
+        }
+
+        // くす玉に合わせて紙吹雪のバーストを生成・再生する
+        function playConfettiBurst() {
+            const burst = document.getElementById('confettiBurst');
+            if (!burst) return;
+
+            const pieces = burst.querySelectorAll('.piece');
+            pieces.forEach((piece, index) => {
+                const dx = (Math.random() * 240 - 120).toFixed(0);
+                const dy = (Math.random() * -140 - 80).toFixed(0);
+                const rot = (Math.random() * 160 - 80).toFixed(0);
+                const delay = (index * 0.02).toFixed(2);
+                piece.style.setProperty('--dx', `${dx}px`);
+                piece.style.setProperty('--dy', `${dy}px`);
+                piece.style.setProperty('--rot', `${rot}deg`);
+                piece.style.setProperty('--delay', `${delay}s`);
+                piece.style.animation = 'none';
+                void piece.offsetWidth;
+                piece.style.animation = '';
+            });
+
+            burst.classList.remove('explode');
+            void burst.offsetWidth;
+            burst.classList.add('explode');
         }
 
         // 抽選確定時のバルーン破裂演出
