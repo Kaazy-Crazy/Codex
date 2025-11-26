@@ -3,55 +3,1155 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>シンプル TODO リスト</title>
-    <link rel="stylesheet" href="style.css">
+    <title>制作部 発表者抽選ルーレット</title>
+    <style>
+        :root {
+            --bg: #f6f8fb;
+            --card: #ffffff;
+            --accent: #3b82f6;
+            --text: #1f2937;
+            --muted: #6b7280;
+            --border: #e5e7eb;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: "Segoe UI", "Hiragino Sans", "Yu Gothic", sans-serif;
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        header {
+            padding: 24px;
+            text-align: center;
+            background: var(--card);
+            border-bottom: 1px solid var(--border);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 26px;
+            letter-spacing: 0.5px;
+        }
+
+        .main {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+        }
+
+        .tabs-card {
+            padding: 0;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 4px;
+            padding: 12px 12px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .tab-button {
+            background: transparent;
+            padding: 10px 16px;
+            border-radius: 10px 10px 0 0;
+            border: 1px solid transparent;
+            border-bottom: none;
+            color: var(--muted);
+        }
+
+        .tab-button.active {
+            background: var(--card);
+            border-color: var(--border);
+            color: var(--text);
+            font-weight: 700;
+        }
+
+        .tab-panel {
+            display: none;
+            padding: 16px;
+        }
+
+        .tab-panel.active {
+            display: block;
+        }
+
+        .section-title {
+            font-size: 18px;
+            margin: 0 0 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-title span {
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        button {
+            cursor: pointer;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 14px;
+            transition: transform 0.05s ease, box-shadow 0.1s ease;
+        }
+
+        button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.07);
+        }
+
+        button:active {
+            transform: translateY(0);
+            box-shadow: none;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        .btn-ghost {
+            background: #eef2ff;
+            color: #4338ca;
+        }
+
+        .btn-danger {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .member-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 420px;
+            overflow-y: auto;
+        }
+
+        .member-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #f9fafb;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 12px;
+        }
+
+        .member-name {
+            font-weight: 600;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .member-actions {
+            display: flex;
+            gap: 6px;
+        }
+
+        .lottery-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            min-height: 320px;
+            text-align: center;
+        }
+
+        .result-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .result-display {
+            font-size: 40px;
+            font-weight: 700;
+            margin: 20px 0;
+            padding: 18px 24px;
+            background: linear-gradient(120deg, #eff6ff, #eef2ff);
+            background-size: 200% 100%;
+            border: 1px dashed #c7d2fe;
+            border-radius: 12px;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .result-label {
+            font-weight: 600;
+            color: var(--text);
+            white-space: nowrap;
+        }
+
+        .result-display.roulette {
+            animation: shimmer 1s linear infinite;
+        }
+
+        .result-display.pop {
+            animation: pop 0.4s ease;
+        }
+
+        /* バルーン＆くす玉演出全体 */
+        .balloon-area {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            height: 160px;
+            margin-top: 4px;
+        }
+
+        .balloon-wrap {
+            position: relative;
+            width: 140px;
+            height: 160px;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.25s ease, transform 0.25s ease;
+            pointer-events: none;
+        }
+
+        .balloon-wrap.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .balloon-shape {
+            position: absolute;
+            left: 50%;
+            bottom: 24px;
+            width: 96px;
+            height: 120px;
+            background: radial-gradient(circle at 30% 25%, #fff7ed 0%, #fecdd3 35%, #fb7185 100%);
+            border-radius: 50% 50% 45% 45%;
+            transform: translateX(-50%);
+            box-shadow: 0 10px 24px rgba(236, 72, 153, 0.38);
+            animation: balloonFloat 3s ease-in-out infinite;
+        }
+
+        .balloon-shape::before {
+            content: '';
+            position: absolute;
+            top: 24px;
+            right: 18px;
+            width: 20px;
+            height: 34px;
+            background: rgba(255,255,255,0.5);
+            border-radius: 12px;
+            transform: rotate(-18deg);
+        }
+
+        .balloon-shape::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            bottom: -14px;
+            width: 20px;
+            height: 14px;
+            background: #f43f5e;
+            border-radius: 0 0 12px 12px;
+            transform: translateX(-50%);
+            box-shadow: 0 6px 10px rgba(0,0,0,0.15);
+        }
+
+        .balloon-string {
+            position: absolute;
+            left: 50%;
+            bottom: -42px;
+            width: 2px;
+            height: 44px;
+            background: linear-gradient(180deg, #fecdd3 0%, #fde68a 100%);
+            transform: translateX(-50%);
+        }
+
+        .burst-piece {
+            position: absolute;
+            left: 50%;
+            bottom: 40px;
+            width: 16px;
+            height: 20px;
+            background: linear-gradient(145deg, #fb7185, #fb923c);
+            border-radius: 6px;
+            opacity: 0;
+            transform: translate(-50%, -10%) scale(0.7) rotate(0deg);
+        }
+
+        .burst-piece.yellow { background: linear-gradient(145deg, #facc15, #f97316); }
+        .burst-piece.blue { background: linear-gradient(145deg, #60a5fa, #3b82f6); }
+
+        .balloon-wrap.pop .balloon-shape {
+            animation: balloonPop 0.65s ease forwards;
+        }
+
+        .balloon-wrap.pop .burst-piece {
+            animation: burstFly 0.8s ease-out forwards;
+            animation-delay: 0.05s;
+        }
+
+        .burst-piece.p1 { --tx: -80px; --ty: -80px; --rot: -25deg; }
+        .burst-piece.p2 { --tx: 70px; --ty: -70px; --rot: 30deg; }
+        .burst-piece.p3 { --tx: -30px; --ty: -90px; --rot: -10deg; }
+        .burst-piece.p4 { --tx: 40px; --ty: -100px; --rot: 18deg; }
+
+        .celebration {
+            position: relative;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            margin-top: 8px;
+            min-height: 180px;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .celebration.show {
+            opacity: 1;
+        }
+
+        .kusudama {
+            position: relative;
+            width: 240px;
+            height: 160px;
+        }
+
+        .kusudama .string {
+            position: absolute;
+            top: -18px;
+            left: 50%;
+            width: 2px;
+            height: 22px;
+            background: #9ca3af;
+            transform: translateX(-50%);
+        }
+
+        .kusudama .half {
+            position: absolute;
+            top: 4px;
+            width: 120px;
+            height: 100px;
+            background: linear-gradient(145deg, #bfdbfe, #3b82f6);
+            border: 2px solid #2563eb;
+            border-radius: 60px 60px 16px 16px;
+            box-shadow: 0 6px 18px rgba(37, 99, 235, 0.25);
+            transform-origin: top;
+        }
+
+        .kusudama .half.left {
+            left: 0;
+            border-top-right-radius: 4px;
+            transform-origin: top right;
+        }
+
+        .kusudama .half.right {
+            right: 0;
+            border-top-left-radius: 4px;
+            transform-origin: top left;
+        }
+
+        .celebration.show .half.left {
+            animation: openLeft 0.8s ease forwards;
+        }
+
+        .celebration.show .half.right {
+            animation: openRight 0.8s ease forwards;
+        }
+
+        @keyframes openLeft {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(-65deg) translateX(-8px); }
+        }
+
+        @keyframes openRight {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(65deg) translateX(8px); }
+        }
+
+        .kusudama .paper {
+            position: absolute;
+            top: 76px;
+            left: 50%;
+            transform: translateX(-50%) scale(0.9) translateY(-8px);
+            min-width: 160px;
+            padding: 12px 16px;
+            background: #fff;
+            border: 2px solid #f59e0b;
+            border-radius: 12px;
+            box-shadow: 0 10px 24px rgba(0,0,0,0.12);
+            color: #b45309;
+            font-weight: 700;
+            opacity: 0;
+            text-align: center;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+
+        .celebration.show .paper {
+            animation: paperDrop 0.9s ease forwards;
+            animation-delay: 0.25s;
+        }
+
+        @keyframes paperDrop {
+            0% { opacity: 0; transform: translateX(-50%) scale(0.9) translateY(-12px); }
+            60% { opacity: 1; transform: translateX(-50%) scale(1.03) translateY(6px); }
+            100% { opacity: 1; transform: translateX(-50%) scale(1) translateY(0); }
+        }
+
+        .confetti {
+            position: absolute;
+            inset: 0;
+            overflow: visible;
+            pointer-events: none;
+        }
+
+        .confetti span {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            width: 10px;
+            height: 14px;
+            border-radius: 2px;
+            opacity: 0;
+            transform: translateX(calc(var(--offset, 0px))) rotate(var(--rot, 0deg));
+            background: var(--color, #fb7185);
+        }
+
+        .celebration.show .confetti span {
+            animation: confettiFall 1.6s ease-out forwards;
+            animation-delay: calc(var(--i, 0) * 0.08s + 0.25s);
+        }
+
+        .confetti-burst {
+            position: absolute;
+            inset: 0;
+            overflow: visible;
+            pointer-events: none;
+        }
+
+        .confetti-burst .piece {
+            position: absolute;
+            top: 12px;
+            left: 50%;
+            width: 12px;
+            height: 16px;
+            border-radius: 3px;
+            opacity: 0;
+            transform: translate(-50%, 0) scale(0.9) rotate(0deg);
+            background: var(--color, #f59e0b);
+        }
+
+        .confetti-burst.explode .piece {
+            animation: confettiBurst 1.35s ease-out forwards;
+            animation-delay: var(--delay, 0s);
+        }
+
+        /* ガチャ演出 */
+        .gacha-area {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            gap: 16px;
+            margin-top: 8px;
+        }
+
+        .gacha-machine {
+            position: relative;
+            width: 180px;
+            height: 230px;
+            background: linear-gradient(180deg, #1e3a8a 0%, #1d4ed8 35%, #1d4ed8 100%);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(37, 99, 235, 0.25);
+            overflow: hidden;
+        }
+
+        .gacha-window {
+            position: absolute;
+            top: 14px;
+            left: 12px;
+            right: 12px;
+            height: 120px;
+            background: linear-gradient(180deg, #e0f2fe 0%, #ffffff 55%, #e0f2fe 100%);
+            border-radius: 12px;
+            border: 3px solid #bfdbfe;
+            overflow: hidden;
+        }
+
+        .gacha-track {
+            position: absolute;
+            inset: 0;
+            padding: 10px 16px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .gacha-ball {
+            width: 46px;
+            height: 46px;
+            background: radial-gradient(circle at 30% 30%, #fff 0%, #fef3c7 25%, #f59e0b 70%);
+            border: 3px solid #d97706;
+            border-radius: 50%;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.18);
+            transform: translateY(-120%);
+            opacity: 0;
+        }
+
+        .gacha-machine.spin .gacha-ball {
+            animation: ballDrop 1.6s cubic-bezier(0.25, 1.12, 0.48, 1) forwards;
+        }
+
+        .gacha-machine.drop .gacha-ball {
+            animation: ballBounce 0.8s ease-out forwards;
+        }
+
+        .gacha-handle {
+            position: absolute;
+            right: 12px;
+            bottom: 62px;
+            width: 20px;
+            height: 46px;
+            background: linear-gradient(180deg, #cbd5e1, #94a3b8);
+            border-radius: 10px;
+            transform-origin: top center;
+            box-shadow: inset 0 0 4px rgba(0,0,0,0.15);
+        }
+
+        .gacha-handle::after {
+            content: '';
+            position: absolute;
+            top: -14px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 26px;
+            height: 26px;
+            background: linear-gradient(145deg, #f87171, #ef4444);
+            border-radius: 50%;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .gacha-machine.spin .gacha-handle {
+            animation: leverPull 0.9s ease;
+        }
+
+        .gacha-slot {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: 18px;
+            width: 80px;
+            height: 30px;
+            background: linear-gradient(180deg, #0ea5e9, #0284c7);
+            border-radius: 16px;
+            box-shadow: inset 0 2px 6px rgba(255,255,255,0.4);
+        }
+
+        .gacha-slot::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 10px;
+            transform: translateX(-50%);
+            width: 44px;
+            height: 10px;
+            background: #0f172a;
+            border-radius: 6px;
+            box-shadow: inset 0 2px 4px rgba(255,255,255,0.25);
+        }
+
+        .gacha-label {
+            font-size: 13px;
+            color: var(--muted);
+            margin: 0;
+            text-align: center;
+        }
+
+        @keyframes leverPull {
+            0% { transform: rotate(0deg); }
+            30% { transform: rotate(25deg); }
+            60% { transform: rotate(-10deg); }
+            100% { transform: rotate(0deg); }
+        }
+
+        @keyframes ballDrop {
+            0% { transform: translateY(-120%); opacity: 0; }
+            30% { opacity: 1; }
+            65% { transform: translateY(42%); }
+            100% { transform: translateY(58%); }
+        }
+
+        @keyframes ballBounce {
+            0% { transform: translateY(58%); }
+            40% { transform: translateY(52%); }
+            100% { transform: translateY(58%); }
+        }
+
+        @keyframes confettiFall {
+            0% { opacity: 1; transform: translate(calc(var(--offset, 0px)), -10px) rotate(var(--rot, 0deg)); }
+            70% { opacity: 1; }
+            100% { opacity: 0; transform: translate(calc(var(--offset, 0px)), 120px) rotate(calc(var(--rot, 0deg) + 160deg)); }
+        }
+
+        @keyframes confettiBurst {
+            0% { opacity: 0; transform: translate(-50%, 0) scale(0.9) rotate(0deg); }
+            12% { opacity: 1; }
+            55% { opacity: 1; transform: translate(calc(-50% + var(--dx, 0px)), var(--dy, -120px)) rotate(var(--rot, 80deg)); }
+            100% { opacity: 0; transform: translate(calc(-50% + var(--dx, 0px)), 180px) rotate(calc(var(--rot, 80deg) + 200deg)); }
+        }
+
+        @keyframes shimmer {
+            0% { background-position: 0 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        @keyframes pop {
+            0% { transform: scale(0.9); box-shadow: none; }
+            70% { transform: scale(1.05); box-shadow: 0 10px 25px rgba(59, 130, 246, 0.25); }
+            100% { transform: scale(1); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        }
+
+        @keyframes balloonFloat {
+            0% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(-6px); }
+            100% { transform: translateX(-50%) translateY(0); }
+        }
+
+        @keyframes balloonPop {
+            0% { transform: translateX(-50%) scale(1); opacity: 1; }
+            40% { transform: translateX(-50%) scale(1.05); opacity: 1; }
+            100% { transform: translateX(-50%) scale(0.05); opacity: 0; }
+        }
+
+        @keyframes burstFly {
+            0% { opacity: 1; transform: translate(-50%, -10%) scale(0.8) rotate(0deg); }
+            100% { opacity: 0; transform: translate(calc(var(--tx, 0px)), calc(var(--ty, -80px))) scale(0.5) rotate(var(--rot, 40deg)); }
+        }
+
+        .history {
+            max-width: 1200px;
+            margin: 0 auto 24px;
+            padding: 16px 20px 24px;
+        }
+
+        .history-list {
+            list-style: none;
+            padding: 0;
+            margin: 12px 0 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 10px;
+        }
+
+        .history-item {
+            background: #f9fafb;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .history-number {
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .muted {
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        button:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+            transform: none;
+            box-shadow: none;
+        }
+
+        @media (max-width: 900px) {
+            .member-list {
+                max-height: none;
+            }
+
+            .lottery-card {
+                min-height: 240px;
+            }
+
+            .result-display {
+                font-size: 32px;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>📝 TODO リスト</h1>
-            <button id="themeToggle" class="theme-toggle" title="ダークモード切り替え">🌙</button>
-        </header>
-        
-        <div class="todo-input">
-            <div class="input-row">
-                <input type="text" id="todoInput" placeholder="新しいTODOを入力してください..." maxlength="100">
-                <select id="categorySelect">
-                    <option value="general">一般</option>
-                    <option value="work">仕事</option>
-                    <option value="personal">プライベート</option>
-                    <option value="shopping">買い物</option>
-                    <option value="health">健康</option>
-                </select>
+    <header>
+        <h1>制作部 発表者抽選ルーレット</h1>
+        <p class="muted">メンバー管理と抽選履歴はブラウザに保存されます</p>
+    </header>
+
+    <main class="main">
+        <section class="card tabs-card">
+            <div class="tabs" role="tablist">
+                <button class="tab-button active" data-target="tab-members" role="tab" aria-selected="true">メンバー管理</button>
+                <button class="tab-button" data-target="tab-lottery" role="tab" aria-selected="false">抽選</button>
             </div>
-            <button id="addBtn">追加</button>
+            <div id="tab-members" class="tab-panel active" role="tabpanel">
+                <h2 class="section-title">メンバー一覧 <span>追加・編集・削除</span></h2>
+                <div class="input-row">
+                    <input type="text" id="memberInput" placeholder="メンバー名を入力" autocomplete="off">
+                    <button id="addMember" class="btn-primary">追加</button>
+                </div>
+                <ul id="memberList" class="member-list"></ul>
+                <p class="muted" id="memberCount">登録人数: 0人</p>
+            </div>
+            <div id="tab-lottery" class="tab-panel" role="tabpanel">
+                <div class="lottery-card">
+                    <div>
+                        <h2 class="section-title" style="justify-content: center;">抽選エリア <span>ルーレット演出付き</span></h2>
+                        <div class="result-wrapper">
+                            <span class="result-label">今日の発表者は</span>
+                            <div id="result" class="result-display">---</div>
+                            <span class="result-label">さんです！よろしくお願いします！</span>
+                        </div>
+                        <div class="balloon-area" aria-hidden="true">
+                            <div id="balloonWrap" class="balloon-wrap">
+                                <div class="balloon-shape"></div>
+                                <div class="balloon-string"></div>
+                                <div class="burst-piece p1"></div>
+                                <div class="burst-piece yellow p2"></div>
+                                <div class="burst-piece blue p3"></div>
+                                <div class="burst-piece p4"></div>
+                            </div>
+                        </div>
+                        <div class="gacha-area" aria-hidden="true">
+                            <div id="gachaMachine" class="gacha-machine">
+                                <div class="gacha-window">
+                                    <div class="gacha-track">
+                                        <div class="gacha-ball"></div>
+                                    </div>
+                                </div>
+                                <div class="gacha-handle"></div>
+                                <div class="gacha-slot"></div>
+                            </div>
+                            <p class="gacha-label">ガチャ演出中...</p>
+                        </div>
+                        <div id="celebration" class="celebration" aria-hidden="true">
+                            <div class="kusudama">
+                                <div class="string"></div>
+                                <div class="half left"></div>
+                                <div class="half right"></div>
+                                <div id="celebrationPaper" class="paper">おめでとう！</div>
+                                <div class="confetti">
+                                    <span style="--i:0; --offset:-120px; --color:#fb7185; --rot:-12deg;"></span>
+                                    <span style="--i:1; --offset:-80px; --color:#34d399; --rot:18deg;"></span>
+                                    <span style="--i:2; --offset:-40px; --color:#facc15; --rot:-24deg;"></span>
+                                    <span style="--i:3; --offset:-10px; --color:#60a5fa; --rot:12deg;"></span>
+                                    <span style="--i:4; --offset:20px; --color:#f472b6; --rot:-18deg;"></span>
+                                    <span style="--i:5; --offset:50px; --color:#22d3ee; --rot:24deg;"></span>
+                                    <span style="--i:6; --offset:80px; --color:#a78bfa; --rot:-16deg;"></span>
+                                    <span style="--i:7; --offset:110px; --color:#fb923c; --rot:14deg;"></span>
+                                    <span style="--i:8; --offset:-100px; --color:#f97316; --rot:20deg;"></span>
+                                    <span style="--i:9; --offset:0px; --color:#10b981; --rot:-20deg;"></span>
+                                    <span style="--i:10; --offset:100px; --color:#38bdf8; --rot:16deg;"></span>
+                                    <span style="--i:11; --offset:140px; --color:#facc15; --rot:-14deg;"></span>
+                                </div>
+                            </div>
+                            <div id="confettiBurst" class="confetti-burst" aria-hidden="true"></div>
+                        </div>
+                        <p class="muted" id="memberCountNote">現在の登録人数: 0人</p>
+                    </div>
+                    <button id="startLottery" class="btn-primary" style="width: 200px;">抽選スタート</button>
+                </div>
+            </div>
+        </section>
+
+    <section class="card history">
+        <div style="display:flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;">
+            <h2 class="section-title" style="margin-bottom: 0;">抽選履歴 <span>最新が左上に表示</span></h2>
+            <button id="clearHistory" class="btn-danger">履歴をクリア</button>
         </div>
-        
-        <div class="category-filters">
-            <button class="category-filter active" data-category="all">すべて</button>
-            <button class="category-filter" data-category="general">一般</button>
-            <button class="category-filter" data-category="work">仕事</button>
-            <button class="category-filter" data-category="personal">プライベート</button>
-            <button class="category-filter" data-category="shopping">買い物</button>
-            <button class="category-filter" data-category="health">健康</button>
-        </div>
-        
-        <div class="todo-stats">
-            <span id="totalCount">合計: 0</span>
-            <span id="completedCount">完了: 0</span>
-            <span id="remainingCount">残り: 0</span>
-        </div>
-        
-        <ul id="todoList" class="todo-list">
-            <!-- TODOアイテムがここに表示されます -->
-        </ul>
-        
-        <div class="actions">
-            <button id="clearCompleted">完了済みを削除</button>
-            <button id="clearAll">全て削除</button>
-        </div>
-    </div>
-    
-    <script src="script.js"></script>
+        <ul id="historyList" class="history-list"></ul>
+    </section>
+
+    <script>
+        // 画面とブラウザタブに表示するタイトル
+        const APP_TITLE = '制作部 発表者抽選ルーレット';
+
+        // LocalStorageに保存するキー名
+        const STORAGE_KEYS = {
+            members: 'lottery_members',
+            history: 'lottery_history'
+        };
+
+        // 状態を保持する配列
+        let members = [];
+        let history = [];
+        let isSpinning = false;
+
+        // ページ読み込み時の初期化
+        document.addEventListener('DOMContentLoaded', () => {
+            document.title = APP_TITLE;
+            const headerTitle = document.querySelector('header h1');
+            if (headerTitle) headerTitle.textContent = APP_TITLE;
+            loadData();
+            renderMembers();
+            renderHistory();
+            setupConfettiBurst();
+            setupTabs();
+            bindEvents();
+        });
+
+        // イベントハンドラの登録
+        function bindEvents() {
+            document.getElementById('addMember').addEventListener('click', addMember);
+            document.getElementById('memberInput').addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') addMember();
+            });
+            document.getElementById('startLottery').addEventListener('click', handleLottery);
+            document.getElementById('clearHistory').addEventListener('click', clearHistory);
+        }
+
+        // 紙吹雪バースト用のピースを生成する
+        function setupConfettiBurst() {
+            const burst = document.getElementById('confettiBurst');
+            if (!burst) return;
+
+            const colors = ['#f87171', '#fb923c', '#facc15', '#34d399', '#60a5fa', '#a78bfa', '#f472b6'];
+            const pieceCount = 28;
+            burst.innerHTML = '';
+            for (let i = 0; i < pieceCount; i++) {
+                const span = document.createElement('span');
+                span.className = 'piece';
+                span.style.setProperty('--color', colors[i % colors.length]);
+                burst.appendChild(span);
+            }
+        }
+
+        // タブ切り替えのセットアップ
+        function setupTabs() {
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const panels = document.querySelectorAll('.tab-panel');
+            tabButtons.forEach((btn) => {
+                btn.addEventListener('click', () => {
+                    tabButtons.forEach((b) => {
+                        b.classList.remove('active');
+                        b.setAttribute('aria-selected', 'false');
+                    });
+                    panels.forEach((panel) => panel.classList.remove('active'));
+                    btn.classList.add('active');
+                    btn.setAttribute('aria-selected', 'true');
+                    const target = document.getElementById(btn.dataset.target);
+                    if (target) target.classList.add('active');
+                });
+            });
+        }
+
+        // LocalStorageからデータを読み込む
+        function loadData() {
+            const storedMembers = localStorage.getItem(STORAGE_KEYS.members);
+            const storedHistory = localStorage.getItem(STORAGE_KEYS.history);
+            members = storedMembers ? JSON.parse(storedMembers) : [];
+            history = storedHistory ? JSON.parse(storedHistory) : [];
+        }
+
+        // メンバーリストを保存する
+        function saveMembers() {
+            localStorage.setItem(STORAGE_KEYS.members, JSON.stringify(members));
+        }
+
+        // 抽選履歴を保存する
+        function saveHistory() {
+            localStorage.setItem(STORAGE_KEYS.history, JSON.stringify(history));
+        }
+
+        // メンバーを追加する
+        function addMember() {
+            const input = document.getElementById('memberInput');
+            const name = input.value.trim();
+            if (!name) return;
+            members.push(name);
+            input.value = '';
+            saveMembers();
+            renderMembers();
+        }
+
+        // メンバーを削除する
+        function removeMember(index) {
+            members.splice(index, 1);
+            saveMembers();
+            renderMembers();
+        }
+
+        // メンバー名を編集する
+        function editMember(index) {
+            const current = members[index];
+            const next = prompt('名前を編集', current);
+            if (next === null) return; // キャンセル
+            const trimmed = next.trim();
+            if (!trimmed) return;
+            members[index] = trimmed;
+            saveMembers();
+            renderMembers();
+        }
+
+        // メンバーリストを描画する
+        function renderMembers() {
+            const list = document.getElementById('memberList');
+            list.innerHTML = '';
+            members.forEach((name, index) => {
+                const li = document.createElement('li');
+                li.className = 'member-item';
+                li.innerHTML = `
+                    <span class="member-name">${escapeHtml(name)}</span>
+                    <div class="member-actions">
+                        <button class="btn-ghost" aria-label="編集" title="編集">編集</button>
+                        <button class="btn-danger" aria-label="削除" title="削除">削除</button>
+                    </div>
+                `;
+
+                const [editBtn, deleteBtn] = li.querySelectorAll('button');
+                editBtn.addEventListener('click', () => editMember(index));
+                deleteBtn.addEventListener('click', () => removeMember(index));
+                list.appendChild(li);
+            });
+            document.getElementById('memberCount').textContent = `登録人数: ${members.length}人`;
+            const memberCountNote = document.getElementById('memberCountNote');
+            if (memberCountNote) memberCountNote.textContent = `現在の登録人数: ${members.length}人`;
+        }
+
+        // 抽選スタートボタン押下時の処理
+        function handleLottery() {
+            if (members.length === 0) {
+                alert('メンバーが登録されていません');
+                return;
+            }
+            if (isSpinning) return; // 二重起動を防ぐ
+
+            isSpinning = true;
+            toggleStartButton(true);
+            triggerGachaAnimation();
+            runRouletteAnimation(() => {
+                const winner = pickRandomMember();
+                displayResult(winner);
+                triggerKusudama(winner);
+                triggerBalloonBurst();
+                appendHistory(winner);
+                toggleStartButton(false);
+                isSpinning = false;
+            });
+        }
+
+        // 抽選ロジック：メンバーからランダムに1人を取得する
+        // 将来的に「全員出るまで被りなし」にしたい場合は、この関数内の選択ロジックを差し替えるだけで対応可能
+        function pickRandomMember() {
+            const index = Math.floor(Math.random() * members.length);
+            return members[index];
+        }
+
+        // ルーレット演出を実行する（名前を高速に切り替えたあと結果を返す）
+        function runRouletteAnimation(onComplete) {
+            const result = document.getElementById('result');
+            const spinDuration = 2000; // ミリ秒
+            const intervalMs = 100;
+            result.classList.add('roulette');
+
+            const spinTimer = setInterval(() => {
+                const candidate = pickRandomMember();
+                displayResult(candidate, true);
+            }, intervalMs);
+
+            setTimeout(() => {
+                clearInterval(spinTimer);
+                result.classList.remove('roulette');
+                if (typeof onComplete === 'function') onComplete();
+            }, spinDuration);
+        }
+
+        // 抽選結果を画面に表示する
+        function displayResult(name, isRoulette = false) {
+            const result = document.getElementById('result');
+            result.textContent = name;
+            if (!isRoulette) triggerPop(result);
+        }
+
+        // ガチャ演出を再生する（ハンドル→カプセル落下の流れ）
+        function triggerGachaAnimation() {
+            const machine = document.getElementById('gachaMachine');
+            if (!machine) return;
+
+            machine.classList.remove('spin', 'drop');
+            // リフローでアニメーションをリセット
+            void machine.offsetWidth;
+            machine.classList.add('spin');
+            // ハンドルの後にカプセルが落ちる演出
+            setTimeout(() => {
+                machine.classList.add('drop');
+            }, 700);
+        }
+
+        // くす玉演出を再生する
+        function triggerKusudama(name) {
+            const wrap = document.getElementById('celebration');
+            const paper = document.getElementById('celebrationPaper');
+            if (!wrap || !paper) return;
+
+            paper.textContent = `${name}さん おめでとう！`;
+            wrap.classList.remove('show');
+            // リフローでアニメーションをリセット
+            void wrap.offsetWidth;
+            wrap.classList.add('show');
+            playConfettiBurst();
+        }
+
+        // くす玉に合わせて紙吹雪のバーストを生成・再生する
+        function playConfettiBurst() {
+            const burst = document.getElementById('confettiBurst');
+            if (!burst) return;
+
+            const pieces = burst.querySelectorAll('.piece');
+            pieces.forEach((piece, index) => {
+                const dx = (Math.random() * 240 - 120).toFixed(0);
+                const dy = (Math.random() * -140 - 80).toFixed(0);
+                const rot = (Math.random() * 160 - 80).toFixed(0);
+                const delay = (index * 0.02).toFixed(2);
+                piece.style.setProperty('--dx', `${dx}px`);
+                piece.style.setProperty('--dy', `${dy}px`);
+                piece.style.setProperty('--rot', `${rot}deg`);
+                piece.style.setProperty('--delay', `${delay}s`);
+                piece.style.animation = 'none';
+                void piece.offsetWidth;
+                piece.style.animation = '';
+            });
+
+            burst.classList.remove('explode');
+            void burst.offsetWidth;
+            burst.classList.add('explode');
+        }
+
+        // 抽選確定時のバルーン破裂演出
+        function triggerBalloonBurst() {
+            const wrap = document.getElementById('balloonWrap');
+            if (!wrap) return;
+
+            const pieces = wrap.querySelectorAll('.burst-piece');
+            wrap.classList.remove('show', 'pop');
+            pieces.forEach((piece) => {
+                piece.style.animation = 'none';
+                // リフローを強制して再生をリセット
+                void piece.offsetWidth;
+                piece.style.animation = '';
+            });
+
+            void wrap.offsetWidth;
+            wrap.classList.add('show');
+            setTimeout(() => wrap.classList.add('pop'), 120);
+            setTimeout(() => wrap.classList.remove('show', 'pop'), 1400);
+        }
+
+        // 抽選結果が決まった際のポップ演出
+        function triggerPop(element) {
+            element.classList.remove('pop');
+            // リフローを強制して再度アニメーションを適用
+            void element.offsetWidth;
+            element.classList.add('pop');
+        }
+
+        // 履歴に抽選結果を追加する
+        function appendHistory(name) {
+            const nextRound = history.length + 1;
+            const record = {
+                round: nextRound,
+                name,
+                at: new Date().toLocaleString('ja-JP')
+            };
+            history.unshift(record); // 新しいものを先頭に
+            saveHistory();
+            renderHistory();
+        }
+
+        // 抽選ボタンの状態を切り替える
+        function toggleStartButton(disabled) {
+            const button = document.getElementById('startLottery');
+            button.disabled = disabled;
+            button.textContent = disabled ? '抽選中...' : '抽選スタート';
+        }
+
+        // 履歴一覧を描画する
+        function renderHistory() {
+            const list = document.getElementById('historyList');
+            list.innerHTML = '';
+            history.forEach((item) => {
+                const li = document.createElement('li');
+                li.className = 'history-item';
+                li.innerHTML = `
+                    <span><span class="history-number">${item.round}回目</span>：${escapeHtml(item.name)}</span>
+                    <span class="muted">${item.at}</span>
+                `;
+                list.appendChild(li);
+            });
+        }
+
+        // 履歴のみをクリアする
+        function clearHistory() {
+            if (!history.length) return;
+            if (!confirm('履歴を削除しますか？メンバーは残ります。')) return;
+            history = [];
+            saveHistory();
+            renderHistory();
+        }
+
+        // HTMLに表示する前に簡易エスケープ
+        function escapeHtml(str) {
+            return str.replace(/[&<>"]+/g, (c) => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;'
+            })[c]);
+        }
+    </script>
 </body>
 </html>
