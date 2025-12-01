@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>売上データ インサイトボード</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+    <div class="app-shell">
+        <header class="app-header">
+            <div>
+                <p class="eyebrow">AI Sales Insights</p>
+                <h1>Excelの売上データを瞬時に分析し、次の一手を提案します。</h1>
+                <p class="lede">日付・商品・カテゴリ・地域・売上・数量などの列を持つExcelファイルを読み込むだけ。重要指標、好調商品、伸び悩み領域を自動で見える化し、すぐに実行できるアクションを提示します。</p>
+                <div class="upload-panel">
+                    <label for="fileInput" class="upload-area">
+                        <div class="upload-icon">📈</div>
+                        <div>
+                            <strong>Excelファイルをドロップ</strong><br>
+                            <small>.xlsx / .xls / .csv をサポート</small>
+                        </div>
+                        <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" />
+                    </label>
+                    <div class="upload-actions">
+                        <button id="sampleData" class="ghost">サンプルデータを読み込む</button>
+                        <span class="hint">最低限「日付」「商品名」「カテゴリ」「地域」「売上」「数量」の列があれば分析できます。</span>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-card">
+                <p class="eyebrow">分析サマリ</p>
+                <div class="hero-metric">
+                    <div>
+                        <span class="hero-value" id="heroSales">--</span>
+                        <span class="hero-label">推定月次売上</span>
+                    </div>
+                    <div class="pill" id="heroTrend">アップロードを待機中</div>
+                </div>
+                <ul class="hero-points" id="heroPoints">
+                    <li>高成長商品・カテゴリを特定</li>
+                    <li>エリア別の強みと伸びしろを抽出</li>
+                    <li>即実行できる改善アクションを提示</li>
+                </ul>
+            </div>
+        </header>
+
+        <main class="content-grid">
+            <section class="card highlight">
+                <div class="card-header">
+                    <div>
+                        <p class="eyebrow">KPIダッシュボード</p>
+                        <h2>主要指標</h2>
+                    </div>
+                    <span class="badge" id="dataStatus">未読込</span>
+                </div>
+                <div class="kpi-grid">
+                    <div class="kpi">
+                        <p>総売上</p>
+                        <h3 id="totalSales">--</h3>
+                        <small id="orderCount">取引件数: --</small>
+                    </div>
+                    <div class="kpi">
+                        <p>平均客単価</p>
+                        <h3 id="avgOrder">--</h3>
+                        <small id="avgPrice">平均単価: --</small>
+                    </div>
+                    <div class="kpi">
+                        <p>数量合計</p>
+                        <h3 id="totalQty">--</h3>
+                        <small id="topRegion">強みの地域: --</small>
+                    </div>
+                    <div class="kpi">
+                        <p>トップ商品</p>
+                        <h3 id="topProduct">--</h3>
+                        <small id="topCategory">トップカテゴリ: --</small>
+                    </div>
+                </div>
+            </section>
+
+            <section class="card">
+                <div class="card-header">
+                    <div>
+                        <p class="eyebrow">パフォーマンス</p>
+                        <h2>売上トレンドと上位商品</h2>
+                    </div>
+                </div>
+                <div class="flex two-column">
+                    <div class="subcard">
+                        <div class="subcard-header">
+                            <h3>月次トレンド</h3>
+                            <span class="pill light" id="trendLabel">--</span>
+                        </div>
+                        <ul class="list" id="trendList"></ul>
+                    </div>
+                    <div class="subcard">
+                        <div class="subcard-header">
+                            <h3>トップ商品 / カテゴリ</h3>
+                            <span class="pill light" id="rankingLabel">--</span>
+                        </div>
+                        <div class="table-wrapper">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>名称</th>
+                                        <th>売上</th>
+                                        <th>数量</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="rankingTable"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="card">
+                <div class="card-header">
+                    <div>
+                        <p class="eyebrow">Actionable Insights</p>
+                        <h2>次の一手</h2>
+                    </div>
+                </div>
+                <div class="insight-grid" id="insightList"></div>
+            </section>
+
+            <section class="card">
+                <div class="card-header">
+                    <div>
+                        <p class="eyebrow">データプレビュー</p>
+                        <h2>最近の行</h2>
+                    </div>
+                    <span class="pill light" id="previewLabel">--</span>
+                </div>
+                <div class="table-wrapper">
+                    <table>
+                        <thead id="previewHead"></thead>
+                        <tbody id="previewBody"></tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
