@@ -197,12 +197,13 @@
             font-size: 12px;
         }
 
-        .weight-input {
-            width: 80px;
-            padding: 6px 8px;
+        .weight-select {
+            width: 110px;
+            padding: 8px 10px;
             border: 1px solid var(--border);
             border-radius: 6px;
             font-size: 13px;
+            background: #fff;
         }
 
         .member-actions {
@@ -376,10 +377,10 @@
             position: relative;
             width: 360px;
             max-width: 100%;
-            background: linear-gradient(180deg, #991b1b 0%, #dc2626 55%, #b91c1c 100%);
+            background: linear-gradient(180deg, #5c1a32 0%, #7a1e3a 55%, #5c1a32 100%);
             border-radius: 18px;
             padding: 18px 16px 28px;
-            box-shadow: 0 16px 36px rgba(220, 38, 38, 0.25);
+            box-shadow: 0 16px 36px rgba(122, 30, 58, 0.28);
             overflow: visible;
         }
 
@@ -496,7 +497,7 @@
             right: 10%;
             bottom: 6px;
             height: 16px;
-            background: linear-gradient(180deg, #7f1d1d 0%, #991b1b 100%);
+            background: linear-gradient(180deg, #52122d 0%, #6a1a36 100%);
             border-radius: 10px;
             box-shadow: inset 0 2px 4px rgba(0,0,0,0.25);
         }
@@ -697,9 +698,21 @@
             </div>
             <div id="tab-members" class="tab-panel" role="tabpanel">
                 <h2 class="section-title">メンバー一覧 <span>追加・編集・削除</span></h2>
-                <div class="input-row" style="flex-wrap: wrap;">
+                <div class="input-row" style="flex-wrap: wrap; align-items: center;">
                     <input type="text" id="memberInput" placeholder="メンバー名を入力" autocomplete="off">
-                    <input type="number" id="weightInput" class="weight-input" placeholder="出やすさ (例: 100)" min="1" value="100" title="出現率の調整 (100が通常)">
+                    <label style="display:flex; align-items:center; gap:6px; color: var(--muted); font-size: 13px;">
+                        出現率
+                        <select id="weightSelect" class="weight-select" title="出現率（高いほど当たりやすい）">
+                            <option value="128">128</option>
+                            <option value="64">64</option>
+                            <option value="32">32</option>
+                            <option value="16">16</option>
+                            <option value="8">8</option>
+                            <option value="4">4</option>
+                            <option value="2">2</option>
+                            <option value="1">1</option>
+                        </select>
+                    </label>
                     <button id="addMember" class="btn-primary">追加</button>
                 </div>
                 <ul id="memberList" class="member-list"></ul>
@@ -725,7 +738,8 @@
             history: 'lottery_history'
         };
 
-        const DEFAULT_WEIGHT = 100;
+        const WEIGHT_OPTIONS = [128, 64, 32, 16, 8, 4, 2, 1];
+        const DEFAULT_WEIGHT = WEIGHT_OPTIONS[0];
 
         // 状態を保持する配列
         // { name: string, weight: number } 形式で保持し、当選後も削除せず繰り返し抽選対象にする
@@ -740,6 +754,8 @@
                 document.title = APP_TITLE;
                 const headerTitle = document.querySelector('header h1');
                 if (headerTitle) headerTitle.textContent = APP_TITLE;
+                const weightSelect = document.getElementById('weightSelect');
+                if (weightSelect) weightSelect.value = DEFAULT_WEIGHT;
                 loadData();
                 renderMembers();
                 renderHistory();
@@ -808,23 +824,45 @@
             localStorage.setItem(STORAGE_KEYS.history, JSON.stringify(history));
         }
 
-        // 出現率の数値をサニタイズする
+        // 出現率の数値をサニタイズし、許可された値(128,64,32,16,8,4,2,1)のいずれかに寄せる
         function sanitizeWeight(value) {
             const parsed = Number(value);
             if (!Number.isFinite(parsed) || parsed <= 0) return DEFAULT_WEIGHT;
-            return Math.min(9999, Math.max(1, Math.round(parsed)));
+            const clamped = Math.min(WEIGHT_OPTIONS[0], Math.round(parsed));
+            return closestWeight(clamped);
+        }
+
+        // 許可された出現率の中で最も近い値を返す
+        function closestWeight(target) {
+            return WEIGHT_OPTIONS.reduce((prev, option) => {
+                const prevDiff = Math.abs(prev - target);
+                const nextDiff = Math.abs(option - target);
+                // 差が同じなら大きい方（当たりやすい方）を優先
+                if (nextDiff < prevDiff || (nextDiff === prevDiff && option > prev)) {
+                    return option;
+                }
+                return prev;
+            }, WEIGHT_OPTIONS[0]);
+        }
+
+        // 次の段階の出現率を返す（128→64→...→1で減衰させる）
+        function getNextWeight(current) {
+            const normalized = closestWeight(current);
+            const idx = WEIGHT_OPTIONS.indexOf(normalized);
+            if (idx === -1) return DEFAULT_WEIGHT;
+            return WEIGHT_OPTIONS[Math.min(idx + 1, WEIGHT_OPTIONS.length - 1)];
         }
 
         // メンバーを追加する（初期の出現率は入力枠またはデフォルト値）
         function addMember() {
             const input = document.getElementById('memberInput');
-            const weightInput = document.getElementById('weightInput');
+            const weightSelect = document.getElementById('weightSelect');
             const name = input.value.trim();
             if (!name) return;
-            const weightValue = sanitizeWeight(weightInput?.value ?? DEFAULT_WEIGHT);
+            const weightValue = sanitizeWeight(weightSelect?.value ?? DEFAULT_WEIGHT);
             members.push({ name, weight: weightValue });
             input.value = '';
-            if (weightInput) weightInput.value = DEFAULT_WEIGHT;
+            if (weightSelect) weightSelect.value = DEFAULT_WEIGHT;
             saveMembers();
             renderMembers();
         }
@@ -855,19 +893,35 @@
             renderMembers();
         }
 
+        // 当選したメンバーの出現率を1段階ずつ下げて同じ人が連続しにくいようにする
+        function applyWinDecay(index) {
+            if (typeof index !== 'number' || index < 0 || index >= members.length) return;
+            const nextWeight = getNextWeight(members[index].weight);
+            members[index].weight = nextWeight;
+            saveMembers();
+            renderMembers();
+        }
+
         // メンバーリストを描画する
         function renderMembers() {
             const list = document.getElementById('memberList');
             list.innerHTML = '';
+            let weightAdjusted = false;
             members.forEach((member, index) => {
+                const normalizedWeight = sanitizeWeight(member.weight);
+                if (normalizedWeight !== member.weight) {
+                    members[index].weight = normalizedWeight;
+                    weightAdjusted = true;
+                }
                 const li = document.createElement('li');
                 li.className = 'member-item';
                 li.innerHTML = `
                     <div class="member-info">
                         <span class="member-name">${escapeHtml(member.name)}</span>
                         <label class="weight-control">出現率
-                            <input type="number" class="weight-input" min="1" value="${member.weight}" aria-label="${escapeHtml(member.name)}の出現率">
-                            % (100で通常、半分なら50)
+                            <select class="weight-select" aria-label="${escapeHtml(member.name)}の出現率">
+                                ${WEIGHT_OPTIONS.map((opt) => `<option value="${opt}" ${normalizedWeight === opt ? 'selected' : ''}>${opt}</option>`).join('')}
+                            </select>
                         </label>
                     </div>
                     <div class="member-actions">
@@ -876,9 +930,9 @@
                     </div>
                 `;
 
-                const weightInput = li.querySelector('.weight-input');
+                const weightSelect = li.querySelector('.weight-select');
                 const [editBtn, deleteBtn] = li.querySelectorAll('button');
-                weightInput.addEventListener('change', () => updateWeight(index, weightInput.value));
+                weightSelect.addEventListener('change', () => updateWeight(index, weightSelect.value));
                 editBtn.addEventListener('click', () => editMember(index));
                 deleteBtn.addEventListener('click', () => removeMember(index));
                 list.appendChild(li);
@@ -886,6 +940,7 @@
             document.getElementById('memberCount').textContent = `登録人数: ${members.length}人`;
             const memberCountNote = document.getElementById('memberCountNote');
             if (memberCountNote) memberCountNote.textContent = `現在の登録人数: ${members.length}人`;
+            if (weightAdjusted) saveMembers();
         }
 
         // 抽選スタートボタン押下時の処理
@@ -900,10 +955,12 @@
             toggleStartButton(true);
             triggerSlotAnimation();
             runRouletteAnimation(() => {
-                const winner = pickRandomMember();
-                displayResult(winner);
+                const winnerEntry = pickRandomMember();
+                const winnerName = winnerEntry?.member?.name ?? '';
+                displayResult(winnerName);
+                applyWinDecay(winnerEntry?.index);
                 triggerBalloonBurst();
-                appendHistory(winner);
+                appendHistory(winnerName);
                 toggleStartButton(false);
                 isSpinning = false;
             });
@@ -912,21 +969,22 @@
         // 抽選ロジック：重み付きでランダムに1人を取得する（当選後もリストから除外しない）
         // 将来的に「全員出るまで被りなし」にしたい場合は、この関数内の選択ロジックを差し替えるだけで対応可能
         function pickRandomMember() {
-            const weightedMembers = members.filter((m) => m.weight > 0);
-            const pool = weightedMembers.length ? weightedMembers : members;
-            const total = pool.reduce((sum, m) => sum + Math.max(0, m.weight), 0);
+            const basePool = members.map((member, index) => ({ member, index }));
+            const weightedPool = basePool.filter(({ member }) => member.weight > 0);
+            const pool = weightedPool.length ? weightedPool : basePool;
+            const total = pool.reduce((sum, { member }) => sum + Math.max(0, member.weight), 0);
 
             if (total <= 0) {
                 const index = Math.floor(Math.random() * pool.length);
-                return pool[index].name;
+                return pool[index];
             }
 
             let roll = Math.random() * total;
-            for (const member of pool) {
-                roll -= Math.max(0, member.weight);
-                if (roll < 0) return member.name;
+            for (const entry of pool) {
+                roll -= Math.max(0, entry.member.weight);
+                if (roll < 0) return entry;
             }
-            return pool[pool.length - 1].name;
+            return pool[pool.length - 1];
         }
 
         // ルーレット演出を実行する（名前を高速に切り替えたあと結果を返す）
@@ -942,7 +1000,7 @@
                     const elapsed = performance.now() - startTime;
                     const remaining = spinDuration - elapsed;
                     const candidate = pickRandomMember();
-                    displayResult(candidate, true);
+                    displayResult(candidate?.member?.name ?? '', true);
 
                     if (remaining <= 0) {
                         result.classList.remove('roulette');
