@@ -3,55 +3,1164 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>シンプル TODO リスト</title>
-    <link rel="stylesheet" href="style.css">
+    <title>制作部 発表者抽選ルーレット</title>
+    <style>
+        :root {
+            --bg: #f6f8fb;
+            --card: #ffffff;
+            --accent: #3b82f6;
+            --text: #1f2937;
+            --muted: #6b7280;
+            --border: #e5e7eb;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: "Segoe UI", "Hiragino Sans", "Yu Gothic", sans-serif;
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        header {
+            padding: 24px;
+            text-align: center;
+            background: var(--card);
+            border-bottom: 1px solid var(--border);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 26px;
+            letter-spacing: 0.5px;
+        }
+
+        .main {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+        }
+
+        .tabs-card {
+            padding: 0;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 4px;
+            padding: 12px 12px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .tab-button {
+            background: transparent;
+            padding: 10px 16px;
+            border-radius: 10px 10px 0 0;
+            border: 1px solid transparent;
+            border-bottom: none;
+            color: var(--muted);
+        }
+
+        .tab-button.active {
+            background: var(--card);
+            border-color: var(--border);
+            color: var(--text);
+            font-weight: 700;
+        }
+
+        .tab-panel {
+            display: none;
+            padding: 16px;
+        }
+
+        .tab-panel.active {
+            display: block;
+        }
+
+        .section-title {
+            font-size: 18px;
+            margin: 0 0 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-title span {
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        button {
+            cursor: pointer;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 14px;
+            transition: transform 0.05s ease, box-shadow 0.1s ease;
+        }
+
+        button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.07);
+        }
+
+        button:active {
+            transform: translateY(0);
+            box-shadow: none;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        .btn-ghost {
+            background: #eef2ff;
+            color: #4338ca;
+        }
+
+        .btn-danger {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .member-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 420px;
+            overflow-y: auto;
+        }
+
+        .member-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #f9fafb;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 12px;
+            gap: 12px;
+        }
+
+        .member-info {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            min-width: 0;
+        }
+
+        .member-name {
+            font-weight: 600;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .weight-control {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .weight-select {
+            width: 110px;
+            padding: 8px 10px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 13px;
+            background: #fff;
+        }
+
+        .member-actions {
+            display: flex;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+
+        .lottery-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            min-height: 320px;
+            text-align: center;
+        }
+
+        .result-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .result-display {
+            font-size: 40px;
+            font-weight: 700;
+            margin: 20px 0;
+            padding: 18px 24px;
+            background: linear-gradient(120deg, #eff6ff, #eef2ff);
+            background-size: 200% 100%;
+            border: 1px dashed #c7d2fe;
+            border-radius: 12px;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .result-label {
+            font-weight: 600;
+            color: var(--text);
+            white-space: nowrap;
+        }
+
+        .result-display.roulette {
+            animation: shimmer 1s linear infinite;
+        }
+
+        .result-display.pop {
+            animation: pop 0.4s ease;
+        }
+
+        /* バルーン演出 */
+        .balloon-area {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            height: 160px;
+            margin-top: 4px;
+        }
+
+        .balloon-wrap {
+            position: relative;
+            width: 140px;
+            height: 160px;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.25s ease, transform 0.25s ease;
+            pointer-events: none;
+        }
+
+        .balloon-wrap.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .balloon-shape {
+            position: absolute;
+            left: 50%;
+            bottom: 24px;
+            width: 96px;
+            height: 120px;
+            background: radial-gradient(circle at 30% 25%, #fff7ed 0%, #fecdd3 35%, #fb7185 100%);
+            border-radius: 50% 50% 45% 45%;
+            transform: translateX(-50%);
+            box-shadow: 0 10px 24px rgba(236, 72, 153, 0.38);
+            animation: balloonFloat 3s ease-in-out infinite;
+        }
+
+        .balloon-shape::before {
+            content: '';
+            position: absolute;
+            top: 24px;
+            right: 18px;
+            width: 20px;
+            height: 34px;
+            background: rgba(255,255,255,0.5);
+            border-radius: 12px;
+            transform: rotate(-18deg);
+        }
+
+        .balloon-shape::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            bottom: -14px;
+            width: 20px;
+            height: 14px;
+            background: #f43f5e;
+            border-radius: 0 0 12px 12px;
+            transform: translateX(-50%);
+            box-shadow: 0 6px 10px rgba(0,0,0,0.15);
+        }
+
+        .balloon-string {
+            position: absolute;
+            left: 50%;
+            bottom: -42px;
+            width: 2px;
+            height: 44px;
+            background: linear-gradient(180deg, #fecdd3 0%, #fde68a 100%);
+            transform: translateX(-50%);
+        }
+
+        .burst-piece {
+            position: absolute;
+            left: 50%;
+            bottom: 40px;
+            width: 16px;
+            height: 20px;
+            background: linear-gradient(145deg, #fb7185, #fb923c);
+            border-radius: 6px;
+            opacity: 0;
+            transform: translate(-50%, -10%) scale(0.7) rotate(0deg);
+        }
+
+        .burst-piece.yellow { background: linear-gradient(145deg, #facc15, #f97316); }
+        .burst-piece.blue { background: linear-gradient(145deg, #60a5fa, #3b82f6); }
+
+        .balloon-wrap.pop .balloon-shape {
+            animation: balloonPop 0.65s ease forwards;
+        }
+
+        .balloon-wrap.pop .balloon-string {
+            animation: stringHide 0.5s ease forwards;
+        }
+
+        .balloon-wrap.pop .burst-piece {
+            animation: burstFly 2.4s ease-out forwards;
+            animation-delay: 0.05s;
+        }
+
+        .burst-piece.p1 { --tx: -80px; --ty: -80px; --rot: -25deg; }
+        .burst-piece.p2 { --tx: 70px; --ty: -70px; --rot: 30deg; }
+        .burst-piece.p3 { --tx: -30px; --ty: -90px; --rot: -10deg; }
+        .burst-piece.p4 { --tx: 40px; --ty: -100px; --rot: 18deg; }
+
+        /* スロットマシーン演出 */
+        .slot-area {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 8px;
+        }
+
+        .slot-machine {
+            position: relative;
+            width: 360px;
+            max-width: 100%;
+            background: linear-gradient(180deg, #5c1a32 0%, #7a1e3a 55%, #5c1a32 100%);
+            border-radius: 18px;
+            padding: 18px 16px 28px;
+            box-shadow: 0 16px 36px rgba(122, 30, 58, 0.28);
+            overflow: visible;
+        }
+
+        .slot-machine::before {
+            content: '';
+            position: absolute;
+            inset: 10px;
+            border-radius: 12px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            pointer-events: none;
+        }
+
+        .slot-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 6px 10px;
+        }
+
+        .slot-title {
+            font-weight: 700;
+            color: #fef2f2;
+            letter-spacing: 0.4px;
+            font-size: 14px;
+            text-shadow: 0 1px 4px rgba(0,0,0,0.2);
+        }
+
+        .slot-lights {
+            display: flex;
+            gap: 6px;
+        }
+
+        .slot-light {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #fff, #fde047 70%, #f97316 100%);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+            opacity: 0.7;
+        }
+
+        .slot-machine.spin .slot-light {
+            animation: lightBlink 0.6s linear infinite;
+        }
+
+        .slot-display {
+            position: relative;
+            background: linear-gradient(180deg, #0f172a 0%, #111827 50%, #0b1220 100%);
+            border-radius: 14px;
+            border: 3px solid #f59e0b;
+            padding: 14px 12px;
+            box-shadow: inset 0 4px 10px rgba(0,0,0,0.35), 0 8px 20px rgba(0,0,0,0.25);
+        }
+
+        .slot-display::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 12px;
+            background: linear-gradient(120deg, rgba(255,255,255,0.08), rgba(255,255,255,0));
+            pointer-events: none;
+        }
+
+        .slot-reel-overlay {
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(90deg, rgba(255,255,255,0.04) 0, rgba(255,255,255,0.04) 18px, transparent 18px, transparent 36px);
+            opacity: 0;
+            border-radius: 10px;
+            mix-blend-mode: screen;
+            pointer-events: none;
+        }
+
+        .slot-machine.spin .slot-reel-overlay {
+            animation: reelSpin 0.6s linear infinite;
+            opacity: 0.8;
+        }
+
+        .slot-screen {
+            position: relative;
+            background: linear-gradient(180deg, #0ea5e9 0%, #2563eb 60%, #1d4ed8 100%);
+            border-radius: 12px;
+            padding: 14px;
+            color: #f8fafc;
+            box-shadow: inset 0 2px 10px rgba(255,255,255,0.25);
+            text-align: center;
+        }
+
+        .slot-screen .result-wrapper {
+            flex-direction: column;
+            gap: 10px;
+            margin: 0;
+            align-items: center;
+            width: 100%;
+        }
+
+        .slot-screen .result-label {
+            color: #e2e8f0;
+        }
+
+        .slot-screen .result-display {
+            width: 100%;
+            background: linear-gradient(130deg, #0f172a, #1e3a8a);
+            color: #f8fafc;
+            border: none;
+            text-align: center;
+            overflow-wrap: anywhere;
+        }
+
+        .slot-stand {
+            position: absolute;
+            left: 10%;
+            right: 10%;
+            bottom: 6px;
+            height: 16px;
+            background: linear-gradient(180deg, #52122d 0%, #6a1a36 100%);
+            border-radius: 10px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.25);
+        }
+
+        .slot-handle {
+            position: absolute;
+            right: -8px;
+            top: 50%;
+            width: 22px;
+            height: 70px;
+            background: linear-gradient(180deg, #cbd5e1, #94a3b8);
+            border-radius: 12px;
+            transform-origin: top center;
+            box-shadow: inset 0 0 6px rgba(0,0,0,0.2), 0 4px 8px rgba(0,0,0,0.16);
+            z-index: 5;
+        }
+
+        .slot-handle::after {
+            content: '';
+            position: absolute;
+            top: -18px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 34px;
+            height: 34px;
+            background: radial-gradient(circle at 30% 30%, #fee2e2, #f87171 70%, #ef4444 100%);
+            border-radius: 50%;
+            box-shadow: 0 5px 12px rgba(0,0,0,0.2);
+        }
+
+        .slot-machine.spin .slot-handle {
+            animation: leverPull 0.9s ease;
+        }
+
+        @keyframes leverPull {
+            0% { transform: rotate(0deg); }
+            30% { transform: rotate(25deg); }
+            60% { transform: rotate(-10deg); }
+            100% { transform: rotate(0deg); }
+        }
+
+        @keyframes lightBlink {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; }
+        }
+
+        @keyframes reelSpin {
+            0% { background-position: 0 0; }
+            100% { background-position: 80px 0; }
+        }
+
+        @keyframes shimmer {
+            0% { background-position: 0 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        @keyframes pop {
+            0% { transform: scale(0.9); box-shadow: none; }
+            70% { transform: scale(1.05); box-shadow: 0 10px 25px rgba(59, 130, 246, 0.25); }
+            100% { transform: scale(1); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        }
+
+        @keyframes balloonFloat {
+            0% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(-6px); }
+            100% { transform: translateX(-50%) translateY(0); }
+        }
+
+        @keyframes balloonPop {
+            0% { transform: translateX(-50%) scale(1); opacity: 1; }
+            40% { transform: translateX(-50%) scale(1.05); opacity: 1; }
+            100% { transform: translateX(-50%) scale(0.05); opacity: 0; }
+        }
+
+        @keyframes burstFly {
+            0% { opacity: 1; transform: translate(-50%, -10%) scale(0.8) rotate(0deg); }
+            100% { opacity: 0; transform: translate(calc(var(--tx, 0px)), calc(var(--ty, -80px))) scale(0.5) rotate(var(--rot, 40deg)); }
+        }
+
+        @keyframes stringHide {
+            0% { opacity: 1; transform: translateX(-50%) scaleY(1); }
+            100% { opacity: 0; transform: translateX(-50%) translateY(-6px) scaleY(0.5); }
+        }
+
+        .history {
+            max-width: 1200px;
+            margin: 0 auto 24px;
+            padding: 16px 20px 24px;
+        }
+
+        .history-list {
+            list-style: none;
+            padding: 0;
+            margin: 12px 0 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 10px;
+        }
+
+        .history-item {
+            background: #f9fafb;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .history-number {
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .muted {
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        button:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+            transform: none;
+            box-shadow: none;
+        }
+
+        @media (max-width: 900px) {
+            .member-list {
+                max-height: none;
+            }
+
+            .lottery-card {
+                min-height: 240px;
+            }
+
+            .result-display {
+                font-size: 32px;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>📝 TODO リスト</h1>
-            <button id="themeToggle" class="theme-toggle" title="ダークモード切り替え">🌙</button>
-        </header>
-        
-        <div class="todo-input">
-            <div class="input-row">
-                <input type="text" id="todoInput" placeholder="新しいTODOを入力してください..." maxlength="100">
-                <select id="categorySelect">
-                    <option value="general">一般</option>
-                    <option value="work">仕事</option>
-                    <option value="personal">プライベート</option>
-                    <option value="shopping">買い物</option>
-                    <option value="health">健康</option>
-                </select>
+    <header>
+        <h1>制作部 発表者抽選ルーレット</h1>
+        <p class="muted">メンバー管理と抽選履歴はブラウザに保存されます</p>
+    </header>
+
+    <main class="main">
+        <section class="card tabs-card">
+            <div class="tabs" role="tablist">
+                <button class="tab-button active" data-target="tab-lottery" role="tab" aria-selected="true">抽選</button>
+                <button class="tab-button" data-target="tab-members" role="tab" aria-selected="false">メンバー管理</button>
             </div>
-            <button id="addBtn">追加</button>
+            <div id="tab-lottery" class="tab-panel active" role="tabpanel">
+                <div class="lottery-card">
+                    <div>
+                        <div class="slot-area" aria-hidden="false">
+                            <div id="slotMachine" class="slot-machine">
+                                <div class="slot-top">
+                                    <div class="slot-title">PRESENTATION SLOT</div>
+                                    <div class="slot-lights" aria-hidden="true">
+                                        <span class="slot-light"></span>
+                                        <span class="slot-light"></span>
+                                        <span class="slot-light"></span>
+                                        <span class="slot-light"></span>
+                                        <span class="slot-light"></span>
+                                    </div>
+                                </div>
+                                <div class="slot-display">
+                                    <div class="slot-screen">
+                                        <div class="result-wrapper">
+                                            <span class="result-label">今日の発表者は</span>
+                                            <div id="result" class="result-display">---</div>
+                                            <span class="result-label">さんです！よろしくお願いします！</span>
+                                        </div>
+                                    </div>
+                                    <div class="slot-reel-overlay" aria-hidden="true"></div>
+                                </div>
+                                <div class="slot-stand" aria-hidden="true"></div>
+                                <div class="slot-handle" aria-hidden="true"></div>
+                            </div>
+                        </div>
+                        <div class="balloon-area" aria-hidden="true">
+                            <div id="balloonWrap" class="balloon-wrap">
+                                <div class="balloon-shape"></div>
+                                <div class="balloon-string"></div>
+                                <div class="burst-piece p1"></div>
+                                <div class="burst-piece yellow p2"></div>
+                                <div class="burst-piece blue p3"></div>
+                                <div class="burst-piece p4"></div>
+                            </div>
+                        </div>
+                        <p class="muted" id="memberCountNote">現在の登録人数: 0人</p>
+                    </div>
+                    <button id="startLottery" class="btn-primary" style="width: 200px;">抽選スタート</button>
+                </div>
+            </div>
+            <div id="tab-members" class="tab-panel" role="tabpanel">
+                <h2 class="section-title">メンバー一覧 <span>追加・編集・削除</span></h2>
+                <div class="input-row" style="flex-wrap: wrap; align-items: center;">
+                    <input type="text" id="memberInput" placeholder="メンバー名を入力" autocomplete="off">
+                    <label style="display:flex; align-items:center; gap:6px; color: var(--muted); font-size: 13px;">
+                        出現率
+                        <select id="weightSelect" class="weight-select" title="出現率（高いほど当たりやすい）">
+                            <option value="128">128</option>
+                            <option value="64">64</option>
+                            <option value="32">32</option>
+                            <option value="16">16</option>
+                            <option value="8">8</option>
+                            <option value="4">4</option>
+                            <option value="2">2</option>
+                            <option value="1">1</option>
+                        </select>
+                    </label>
+                    <button id="addMember" class="btn-primary">追加</button>
+                </div>
+                <ul id="memberList" class="member-list"></ul>
+                <p class="muted" id="memberCount">登録人数: 0人</p>
+            </div>
+        </section>
+
+    <section class="card history">
+        <div style="display:flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;">
+            <h2 class="section-title" style="margin-bottom: 0;">抽選履歴 <span>最新が左上に表示</span></h2>
+            <button id="clearHistory" class="btn-danger">履歴をクリア</button>
         </div>
-        
-        <div class="category-filters">
-            <button class="category-filter active" data-category="all">すべて</button>
-            <button class="category-filter" data-category="general">一般</button>
-            <button class="category-filter" data-category="work">仕事</button>
-            <button class="category-filter" data-category="personal">プライベート</button>
-            <button class="category-filter" data-category="shopping">買い物</button>
-            <button class="category-filter" data-category="health">健康</button>
-        </div>
-        
-        <div class="todo-stats">
-            <span id="totalCount">合計: 0</span>
-            <span id="completedCount">完了: 0</span>
-            <span id="remainingCount">残り: 0</span>
-        </div>
-        
-        <ul id="todoList" class="todo-list">
-            <!-- TODOアイテムがここに表示されます -->
-        </ul>
-        
-        <div class="actions">
-            <button id="clearCompleted">完了済みを削除</button>
-            <button id="clearAll">全て削除</button>
-        </div>
-    </div>
-    
-    <script src="script.js"></script>
+        <ul id="historyList" class="history-list"></ul>
+    </section>
+
+    <script>
+        // 画面とブラウザタブに表示するタイトル
+        const APP_TITLE = '制作部 発表者抽選ルーレット';
+
+        // LocalStorageに保存するキー名
+        const STORAGE_KEYS = {
+            members: 'lottery_members',
+            history: 'lottery_history'
+        };
+
+        const WEIGHT_OPTIONS = [128, 64, 32, 16, 8, 4, 2, 1];
+        const DEFAULT_WEIGHT = WEIGHT_OPTIONS[0];
+
+        // 状態を保持する配列
+        // { name: string, weight: number } 形式で保持し、当選後も削除せず繰り返し抽選対象にする
+        let members = [];
+        let history = [];
+        let isSpinning = false;
+        let balloonPopTimer = null;
+        let balloonHideTimer = null;
+
+        // ページ読み込み時の初期化
+            document.addEventListener('DOMContentLoaded', () => {
+                document.title = APP_TITLE;
+                const headerTitle = document.querySelector('header h1');
+                if (headerTitle) headerTitle.textContent = APP_TITLE;
+                const weightSelect = document.getElementById('weightSelect');
+                if (weightSelect) weightSelect.value = DEFAULT_WEIGHT;
+                loadData();
+                renderMembers();
+                renderHistory();
+                setupTabs();
+                bindEvents();
+            });
+
+        // イベントハンドラの登録
+        function bindEvents() {
+            document.getElementById('addMember').addEventListener('click', addMember);
+            document.getElementById('memberInput').addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') addMember();
+            });
+            document.getElementById('startLottery').addEventListener('click', handleLottery);
+            document.getElementById('clearHistory').addEventListener('click', clearHistory);
+        }
+
+        // タブ切り替えのセットアップ
+        function setupTabs() {
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const panels = document.querySelectorAll('.tab-panel');
+            tabButtons.forEach((btn) => {
+                btn.addEventListener('click', () => {
+                    tabButtons.forEach((b) => {
+                        b.classList.remove('active');
+                        b.setAttribute('aria-selected', 'false');
+                    });
+                    panels.forEach((panel) => panel.classList.remove('active'));
+                    btn.classList.add('active');
+                    btn.setAttribute('aria-selected', 'true');
+                    const target = document.getElementById(btn.dataset.target);
+                    if (target) target.classList.add('active');
+                });
+            });
+        }
+
+        // LocalStorageからデータを読み込む
+        function loadData() {
+            const storedMembers = localStorage.getItem(STORAGE_KEYS.members);
+            const storedHistory = localStorage.getItem(STORAGE_KEYS.history);
+            const parsedMembers = storedMembers ? JSON.parse(storedMembers) : [];
+
+            // 旧データ(文字列のみ)も取り込めるように変換する
+            members = Array.isArray(parsedMembers)
+                ? parsedMembers
+                    .map((item) => {
+                        if (typeof item === 'string') return { name: item, weight: DEFAULT_WEIGHT };
+                        if (item && typeof item.name === 'string') {
+                            return { name: item.name, weight: sanitizeWeight(item.weight ?? DEFAULT_WEIGHT) };
+                        }
+                        return null;
+                    })
+                    .filter(Boolean)
+                : [];
+
+            history = storedHistory ? JSON.parse(storedHistory) : [];
+        }
+
+        // メンバーリストを保存する
+        function saveMembers() {
+            localStorage.setItem(STORAGE_KEYS.members, JSON.stringify(members));
+        }
+
+        // 抽選履歴を保存する
+        function saveHistory() {
+            localStorage.setItem(STORAGE_KEYS.history, JSON.stringify(history));
+        }
+
+        // 出現率の数値をサニタイズし、許可された値(128,64,32,16,8,4,2,1)のいずれかに寄せる
+        function sanitizeWeight(value) {
+            const parsed = Number(value);
+            if (!Number.isFinite(parsed) || parsed <= 0) return DEFAULT_WEIGHT;
+            const clamped = Math.min(WEIGHT_OPTIONS[0], Math.round(parsed));
+            return closestWeight(clamped);
+        }
+
+        // 許可された出現率の中で最も近い値を返す
+        function closestWeight(target) {
+            return WEIGHT_OPTIONS.reduce((prev, option) => {
+                const prevDiff = Math.abs(prev - target);
+                const nextDiff = Math.abs(option - target);
+                // 差が同じなら大きい方（当たりやすい方）を優先
+                if (nextDiff < prevDiff || (nextDiff === prevDiff && option > prev)) {
+                    return option;
+                }
+                return prev;
+            }, WEIGHT_OPTIONS[0]);
+        }
+
+        // 次の段階の出現率を返す（128→64→...→1で減衰させる）
+        function getNextWeight(current) {
+            const normalized = closestWeight(current);
+            const idx = WEIGHT_OPTIONS.indexOf(normalized);
+            if (idx === -1) return DEFAULT_WEIGHT;
+            return WEIGHT_OPTIONS[Math.min(idx + 1, WEIGHT_OPTIONS.length - 1)];
+        }
+
+        // メンバーを追加する（初期の出現率は入力枠またはデフォルト値）
+        function addMember() {
+            const input = document.getElementById('memberInput');
+            const weightSelect = document.getElementById('weightSelect');
+            const name = input.value.trim();
+            if (!name) return;
+            const weightValue = sanitizeWeight(weightSelect?.value ?? DEFAULT_WEIGHT);
+            members.push({ name, weight: weightValue });
+            input.value = '';
+            if (weightSelect) weightSelect.value = DEFAULT_WEIGHT;
+            saveMembers();
+            renderMembers();
+        }
+
+        // メンバーを削除する
+        function removeMember(index) {
+            members.splice(index, 1);
+            saveMembers();
+            renderMembers();
+        }
+
+        // メンバー名を編集する
+        function editMember(index) {
+            const current = members[index];
+            const next = prompt('名前を編集', current?.name ?? '');
+            if (next === null) return; // キャンセル
+            const trimmed = next.trim();
+            if (!trimmed) return;
+            members[index].name = trimmed;
+            saveMembers();
+            renderMembers();
+        }
+
+        // メンバーの出現率を更新する
+        function updateWeight(index, value) {
+            members[index].weight = sanitizeWeight(value);
+            saveMembers();
+            renderMembers();
+        }
+
+        // 当選したメンバーの出現率を1段階ずつ下げて同じ人が連続しにくいようにする
+        function applyWinDecay(index) {
+            if (typeof index !== 'number' || index < 0 || index >= members.length) return;
+            const nextWeight = getNextWeight(members[index].weight);
+            members[index].weight = nextWeight;
+            saveMembers();
+            renderMembers();
+        }
+
+        // メンバーリストを描画する
+        function renderMembers() {
+            const list = document.getElementById('memberList');
+            list.innerHTML = '';
+            let weightAdjusted = false;
+            members.forEach((member, index) => {
+                const normalizedWeight = sanitizeWeight(member.weight);
+                if (normalizedWeight !== member.weight) {
+                    members[index].weight = normalizedWeight;
+                    weightAdjusted = true;
+                }
+                const li = document.createElement('li');
+                li.className = 'member-item';
+                li.innerHTML = `
+                    <div class="member-info">
+                        <span class="member-name">${escapeHtml(member.name)}</span>
+                        <label class="weight-control">出現率
+                            <select class="weight-select" aria-label="${escapeHtml(member.name)}の出現率">
+                                ${WEIGHT_OPTIONS.map((opt) => `<option value="${opt}" ${normalizedWeight === opt ? 'selected' : ''}>${opt}</option>`).join('')}
+                            </select>
+                        </label>
+                    </div>
+                    <div class="member-actions">
+                        <button class="btn-ghost" aria-label="編集" title="編集">編集</button>
+                        <button class="btn-danger" aria-label="削除" title="削除">削除</button>
+                    </div>
+                `;
+
+                const weightSelect = li.querySelector('.weight-select');
+                const [editBtn, deleteBtn] = li.querySelectorAll('button');
+                weightSelect.addEventListener('change', () => updateWeight(index, weightSelect.value));
+                editBtn.addEventListener('click', () => editMember(index));
+                deleteBtn.addEventListener('click', () => removeMember(index));
+                list.appendChild(li);
+            });
+            document.getElementById('memberCount').textContent = `登録人数: ${members.length}人`;
+            const memberCountNote = document.getElementById('memberCountNote');
+            if (memberCountNote) memberCountNote.textContent = `現在の登録人数: ${members.length}人`;
+            if (weightAdjusted) saveMembers();
+        }
+
+        // 抽選スタートボタン押下時の処理
+        function handleLottery() {
+            if (members.length === 0) {
+                alert('メンバーが登録されていません');
+                return;
+            }
+            if (isSpinning) return; // 二重起動を防ぐ
+
+            isSpinning = true;
+            toggleStartButton(true);
+            triggerSlotAnimation();
+            runRouletteAnimation(() => {
+                const winnerEntry = pickRandomMember();
+                const winnerName = winnerEntry?.member?.name ?? '';
+                displayResult(winnerName);
+                applyWinDecay(winnerEntry?.index);
+                triggerBalloonBurst();
+                appendHistory(winnerName);
+                toggleStartButton(false);
+                isSpinning = false;
+            });
+        }
+
+        // 抽選ロジック：重み付きでランダムに1人を取得する（当選後もリストから除外しない）
+        // 将来的に「全員出るまで被りなし」にしたい場合は、この関数内の選択ロジックを差し替えるだけで対応可能
+        function pickRandomMember() {
+            const basePool = members.map((member, index) => ({ member, index }));
+            const weightedPool = basePool.filter(({ member }) => member.weight > 0);
+            const pool = weightedPool.length ? weightedPool : basePool;
+            const total = pool.reduce((sum, { member }) => sum + Math.max(0, member.weight), 0);
+
+            if (total <= 0) {
+                const index = Math.floor(Math.random() * pool.length);
+                return pool[index];
+            }
+
+            let roll = Math.random() * total;
+            for (const entry of pool) {
+                roll -= Math.max(0, entry.member.weight);
+                if (roll < 0) return entry;
+            }
+            return pool[pool.length - 1];
+        }
+
+        // ルーレット演出を実行する（名前を高速に切り替えたあと結果を返す）
+        function runRouletteAnimation(onComplete) {
+            const result = document.getElementById('result');
+            const spinDuration = 4000; // ミリ秒（従来の2倍）
+            const startTime = performance.now();
+            result.classList.add('roulette');
+
+            // 高速70%→中速25%→低速5%のフェーズを設け、終盤に向けて切り替え間隔を伸ばす
+            const tick = (delay) => {
+                setTimeout(() => {
+                    const elapsed = performance.now() - startTime;
+                    const remaining = spinDuration - elapsed;
+                    const candidate = pickRandomMember();
+                    displayResult(candidate?.member?.name ?? '', true);
+
+                    if (remaining <= 0) {
+                        result.classList.remove('roulette');
+                        if (typeof onComplete === 'function') onComplete();
+                        return;
+                    }
+
+                    const progress = Math.min(1, elapsed / spinDuration);
+                    const nextDelay = getStageDelay(progress);
+                    tick(Math.min(remaining, nextDelay));
+                }, delay);
+            };
+
+            tick(getStageDelay(0));
+        }
+
+        // フェーズごとの速度を返す（高速70%→中速25%→低速5%）
+        function getStageDelay(progress) {
+            const fastEnd = 0.7; // 高速フェーズ終了割合
+            const midEnd = 0.95; // 中速フェーズ終了割合
+
+            if (progress < fastEnd) {
+                const t = easeOutQuad(progress / fastEnd);
+                return lerp(60, 140, t);
+            }
+
+            if (progress < midEnd) {
+                const t = easeOutQuad((progress - fastEnd) / (midEnd - fastEnd));
+                return lerp(150, 260, t);
+            }
+
+            const t = easeOutQuad((progress - midEnd) / (1 - midEnd));
+            return lerp(280, 450, t);
+        }
+
+        // 0-1の値を線形補間する
+        function lerp(start, end, t) {
+            return start + (end - start) * t;
+        }
+
+        // ゆるやかな減速カーブ
+        function easeOutQuad(t) {
+            return 1 - (1 - t) * (1 - t);
+        }
+
+        // 抽選結果を画面に表示する
+        function displayResult(name, isRoulette = false) {
+            const result = document.getElementById('result');
+            result.textContent = name;
+            if (!isRoulette) triggerPop(result);
+        }
+
+        // スロット演出を再生する（ハンドルを引いてランプとリールを回す）
+        function triggerSlotAnimation() {
+            const machine = document.getElementById('slotMachine');
+            if (!machine) return;
+
+            machine.classList.remove('spin');
+            // リフローでアニメーションをリセット
+            void machine.offsetWidth;
+            machine.classList.add('spin');
+            // 完了後にクラスを戻す
+            setTimeout(() => machine.classList.remove('spin'), 1800);
+        }
+
+        // 抽選確定時のバルーン破裂演出
+        function triggerBalloonBurst() {
+            const wrap = document.getElementById('balloonWrap');
+            if (!wrap) return;
+
+            // 既存のタイマーをクリアして、前回の終了待ちでちらつかないようにする
+            clearTimeout(balloonPopTimer);
+            clearTimeout(balloonHideTimer);
+
+            const pieces = wrap.querySelectorAll('.burst-piece');
+            const stringEl = wrap.querySelector('.balloon-string');
+            wrap.classList.remove('show', 'pop');
+            wrap.style.visibility = 'visible';
+            pieces.forEach((piece) => {
+                piece.style.animation = 'none';
+                // リフローを強制して再生をリセット
+                void piece.offsetWidth;
+                piece.style.animation = '';
+            });
+            if (stringEl) {
+                stringEl.style.animation = 'none';
+                void stringEl.offsetWidth;
+                stringEl.style.animation = '';
+            }
+
+            void wrap.offsetWidth;
+            wrap.classList.add('show');
+            balloonPopTimer = setTimeout(() => wrap.classList.add('pop'), 120);
+            balloonHideTimer = setTimeout(() => {
+                wrap.classList.remove('show', 'pop');
+                wrap.style.visibility = 'hidden';
+            }, 4200);
+        }
+
+        // 抽選結果が決まった際のポップ演出
+        function triggerPop(element) {
+            element.classList.remove('pop');
+            // リフローを強制して再度アニメーションを適用
+            void element.offsetWidth;
+            element.classList.add('pop');
+        }
+
+        // 履歴に抽選結果を追加する
+        function appendHistory(name) {
+            const nextRound = history.length + 1;
+            const record = {
+                round: nextRound,
+                name,
+                at: new Date().toLocaleString('ja-JP')
+            };
+            history.unshift(record); // 新しいものを先頭に
+            saveHistory();
+            renderHistory();
+        }
+
+        // 抽選ボタンの状態を切り替える
+        function toggleStartButton(disabled) {
+            const button = document.getElementById('startLottery');
+            button.disabled = disabled;
+            button.textContent = disabled ? '抽選中...' : '抽選スタート';
+        }
+
+        // 履歴一覧を描画する
+        function renderHistory() {
+            const list = document.getElementById('historyList');
+            list.innerHTML = '';
+            history.forEach((item) => {
+                const li = document.createElement('li');
+                li.className = 'history-item';
+                li.innerHTML = `
+                    <span><span class="history-number">${item.round}回目</span>：${escapeHtml(item.name)}</span>
+                    <span class="muted">${item.at}</span>
+                `;
+                list.appendChild(li);
+            });
+        }
+
+        // 履歴のみをクリアする
+        function clearHistory() {
+            if (!history.length) return;
+            if (!confirm('履歴を削除しますか？メンバーは残ります。')) return;
+            history = [];
+            saveHistory();
+            renderHistory();
+        }
+
+        // HTMLに表示する前に簡易エスケープ
+        function escapeHtml(str) {
+            return str.replace(/[&<>"]+/g, (c) => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;'
+            })[c]);
+        }
+    </script>
 </body>
 </html>
