@@ -646,6 +646,8 @@
         <p class="muted">メンバー管理と抽選履歴はブラウザに保存されます</p>
     </header>
 
+    <audio id="se-start" src="SE114_2.mp3"></audio>
+
     <main class="main">
         <section class="card tabs-card">
             <div class="tabs" role="tablist">
@@ -748,12 +750,14 @@
         let isSpinning = false;
         let balloonPopTimer = null;
         let balloonHideTimer = null;
+        let seStart = null;
 
         // ページ読み込み時の初期化
             document.addEventListener('DOMContentLoaded', () => {
                 document.title = APP_TITLE;
                 const headerTitle = document.querySelector('header h1');
                 if (headerTitle) headerTitle.textContent = APP_TITLE;
+                seStart = document.getElementById('se-start');
                 const weightSelect = document.getElementById('weightSelect');
                 if (weightSelect) weightSelect.value = DEFAULT_WEIGHT;
                 loadData();
@@ -950,6 +954,11 @@
                 return;
             }
             if (isSpinning) return; // 二重起動を防ぐ
+
+            if (seStart) {
+                seStart.currentTime = 0;
+                seStart.play();
+            }
 
             isSpinning = true;
             toggleStartButton(true);
